@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Analisis Superstore</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="Dashboard analisis bisnis premium dan interaktif untuk data Superstore. Lihat KPI, tren, distribusi kategori, dan wawasan eksekutif utama.">
+  <meta name="author" content="Antigravity AI">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-icon">
+          <i data-lucide="trending-up" class="glow-icon"></i>
+        </div>
+        <div>
+          <h2>Superstore</h2>
+          <p>Pusat Analisis</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="nav-section-title">METRIK &amp; GRAFIK</li>
+          <li class="active" id="nav-overview">
+            <a href="#overview">
+              <i data-lucide="layout-dashboard"></i>
+              <span>Ringkasan Dashboard</span>
+            </a>
+          </li>
+          <li id="nav-chart1">
+            <a href="#chart-trend-section">
+              <i data-lucide="trending-up"></i>
+              <span>Chart 1: Tren Bulanan</span>
+            </a>
+          </li>
+          <li id="nav-chart2">
+            <a href="#chart-category-donut-section">
+              <i data-lucide="pie-chart"></i>
+              <span>Chart 2: Pangsa Kategori</span>
+            </a>
+          </li>
+          <li id="nav-chart3">
+            <a href="#chart-gap-volume-section">
+              <i data-lucide="bar-chart-2"></i>
+              <span>Chart 3: Volume Kategori</span>
+            </a>
+          </li>
+          <li id="nav-chart4">
+            <a href="#chart-gap-margin-section">
+              <i data-lucide="percent"></i>
+              <span>Chart 4: Margin Kategori</span>
+            </a>
+          </li>
+          <li id="nav-chart5">
+            <a href="#chart-region-section">
+              <i data-lucide="map"></i>
+              <span>Chart 5: Performa Wilayah</span>
+            </a>
+          </li>
+          <li id="nav-chart6">
+            <a href="#chart-subcategory-bar-section">
+              <i data-lucide="layers"></i>
+              <span>Chart 6: Sub-Kategori</span>
+            </a>
+          </li>
+          <li id="nav-chart7">
+            <a href="#chart-state-section">
+              <i data-lucide="map-pin"></i>
+              <span>Chart 7: Performa State</span>
+            </a>
+          </li>
+          <li id="nav-chart8">
+            <a href="#chart-segment-section">
+              <i data-lucide="users"></i>
+              <span>Chart 8: Segmen Pelanggan</span>
+            </a>
+          </li>
+
+
+        </ul>
+      </nav>
+
+      <!-- Sidebar Dynamic Insights Widget -->
+      <div class="sidebar-widget">
+        <div class="widget-header">
+          <i data-lucide="sparkles" class="accent-icon"></i>
+          <h4>Rekomendasi AI Cepat</h4>
+        </div>
+        <p id="dynamic-recommendation">Memuat rekomendasi berdasarkan filter aktif...</p>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <button id="theme-toggle-btn" class="btn btn-secondary flex-center" title="Beralih Mode Gelap/Terang">
+          <i data-lucide="sun" id="theme-icon-sun" class="hidden"></i>
+          <i data-lucide="moon" id="theme-icon-moon"></i>
+          <span id="theme-text">Mode Gelap</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navigation / Header -->
+      <header class="main-header">
+        <div class="header-title">
+          <h1>Dashboard Superstore</h1>
+          <p class="subtitle">Analisis kinerja, wawasan prediktif, dan metrik utama</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="date-range-picker">
+            <div class="date-input-group">
+              <label for="date-start">Mulai</label>
+              <input type="date" id="date-start" min="2025-01-01" max="2026-12-31" value="2025-01-01">
+            </div>
+            <div class="date-separator">ke</div>
+            <div class="date-input-group">
+              <label for="date-end">Selesai</label>
+              <input type="date" id="date-end" min="2025-01-01" max="2026-12-31" value="2026-08-31">
+            </div>
+          </div>
+          <button id="btn-reset-filters" class="btn btn-icon" title="Reset Filter">
+            <i data-lucide="rotate-ccw"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Global Filter Bar -->
+      <section class="filter-bar-container">
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label for="filter-region"><i data-lucide="map-pin"></i> Wilayah</label>
+            <select id="filter-region">
+              <option value="All">Semua Wilayah</option>
+              <option value="West">Barat (West)</option>
+              <option value="East">Timur (East)</option>
+              <option value="Central">Tengah (Central)</option>
+              <option value="South">Selatan (South)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-category"><i data-lucide="package"></i> Kategori</label>
+            <select id="filter-category">
+              <option value="All">Semua Kategori</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Technology">Technology</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-segment"><i data-lucide="users"></i> Segmen</label>
+            <select id="filter-segment">
+              <option value="All">Semua Segmen</option>
+              <option value="Consumer">Konsumen</option>
+              <option value="Corporate">Korporat</option>
+              <option value="Home Office">Kantor Rumah</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Overview Page -->
+      <div id="overview" class="view-page active">
+        <!-- KPI Summary Cards -->
+        <section class="kpi-grid">
+          <!-- KPI Card 1: Sales -->
+          <div class="kpi-card sales">
+            <div class="kpi-icon-container">
+              <i data-lucide="dollar-sign"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">total penjualan</span>
+              <h3 id="kpi-sales">$0</h3>
+              <span class="kpi-trend trend-positive" id="kpi-sales-trend">
+                <i data-lucide="trending-up"></i>
+                <span>Periode Aktif</span>
+              </span>
+            </div>
+            <div class="kpi-bg-glow"></div>
+          </div>
+
+          <!-- KPI Card 2: Profit -->
+          <div class="kpi-card profit">
+            <div class="kpi-icon-container">
+              <i data-lucide="piggy-bank"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">total laba</span>
+              <h3 id="kpi-profit">$0</h3>
+              <span class="kpi-trend trend-positive" id="kpi-margin-value">
+                <span>0% Margin</span>
+              </span>
+            </div>
+            <div class="kpi-bg-glow"></div>
+          </div>
+
+          <!-- KPI Card 3: Orders -->
+          <div class="kpi-card orders">
+            <div class="kpi-icon-container">
+              <i data-lucide="shopping-cart"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">total order</span>
+              <h3 id="kpi-orders">0</h3>
+              <span class="kpi-trend" id="kpi-quantity-value">
+                <span>0 Unit Terjual</span>
+              </span>
+            </div>
+            <div class="kpi-bg-glow"></div>
+          </div>
+
+          <!-- KPI Card 4: Customers -->
+          <div class="kpi-card customers">
+            <div class="kpi-icon-container">
+              <i data-lucide="users"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">pelanggan</span>
+              <h3 id="kpi-customers">0</h3>
+              <span class="kpi-trend" id="kpi-customer-trend">
+                <i data-lucide="info"></i>
+                <span>Basis Aktif</span>
+              </span>
+            </div>
+            <div class="kpi-bg-glow"></div>
+          </div>
+
+          <!-- KPI Card 5: Avg Order Value -->
+          <div class="kpi-card avg-order-value">
+            <div class="kpi-icon-container">
+              <i data-lucide="credit-card"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">rata rata nilai order</span>
+              <h3 id="kpi-avg-order-value">$0</h3>
+              <span class="kpi-trend" id="kpi-avg-order-trend">
+                <i data-lucide="info"></i>
+                <span>Rata-rata per Pesanan</span>
+              </span>
+            </div>
+            <div class="kpi-bg-glow"></div>
+          </div>
+        </section>
+
+        <!-- Analytical Narrative Insights Section -->
+        <section class="insights-container scroll-reveal" id="insights-section">
+          <div class="section-title-container">
+            <i data-lucide="lightbulb" class="accent-icon"></i>
+            <h2>Wawasan Eksekutif & Narasi Analitis</h2>
+          </div>
+
+          <div class="insights-grid">
+            <div class="insight-card highlight-border">
+              <div class="insight-icon">
+                <i data-lucide="dollar-sign"></i>
+              </div>
+              <div class="insight-content">
+                <h4>Wawasan Kinerja Penjualan</h4>
+                <p id="insight-sales-text">Revenue metrics analysis will generate here based on selected filters...</p>
+              </div>
+            </div>
+
+            <div class="insight-card highlight-border">
+              <div class="insight-icon">
+                <i data-lucide="trending-up"></i>
+              </div>
+              <div class="insight-content">
+                <h4>Faktor Profitabilitas</h4>
+                <p id="insight-profit-text">Profitability insights and drivers will generate here based on selected
+                  filters...</p>
+              </div>
+            </div>
+
+            <div class="insight-card highlight-border">
+              <div class="insight-icon">
+                <i data-lucide="alert-triangle"></i>
+              </div>
+              <div class="insight-content">
+                <h4>Analisis Risiko & Sensitivitas Diskon</h4>
+                <p id="insight-discount-text">Analysis of margin risks, discounts, and low performing lines will
+                  generate here...</p>
+              </div>
+            </div>
+
+            <div class="insight-card highlight-border">
+              <div class="insight-icon">
+                <i data-lucide="award"></i>
+              </div>
+              <div class="insight-content">
+                <h4>Rekomendasi Strategis</h4>
+                <p id="insight-recommendations-text">Actionable management advice and pricing strategies based on data
+                  findings...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Interactive Data Table Section -->
+        <section class="data-table-container scroll-reveal" id="transactions-section">
+          <div class="table-header">
+            <div class="table-title">
+              <h2>Pesanan Terbaru</h2>
+              <p id="table-record-count">Menampilkan 0 dari 0 transaksi</p>
+            </div>
+            <div class="table-actions">
+              <div class="search-box">
+                <i data-lucide="search"></i>
+                <input type="text" id="table-search" placeholder="Cari pelanggan, ID, atau sub‑kategori...">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="orders-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="orderId">ID Pesanan <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="orderDate">Tanggal <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="customerName">Nama Pelanggan <i data-lucide="chevrons-up-down"></i>
+                  </th>
+                  <th class="sortable" data-sort="region">Wilayah <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="category">Kategori <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="subCategory">Sub‑Kategori <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="sales">Penjualan <i data-lucide="chevrons-up-down"></i></th>
+                  <th class="sortable" data-sort="profit">Laba <i data-lucide="chevrons-up-down"></i></th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-pagination">
+            <div class="pagination-info">
+              Halaman <span id="page-num-current">1</span> dari <span id="page-num-total">1</span>
+            </div>
+            <div class="pagination-buttons">
+              <button id="btn-page-prev" class="btn btn-secondary btn-sm"><i data-lucide="chevron-left"></i>
+                Sebelumnya</button>
+              <button id="btn-page-next" class="btn btn-secondary btn-sm">Berikutnya <i
+                  data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Chart 1: Sales Monthly Trend (Large) -->
+      <div class="chart-card view-page" id="chart-trend-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 1: Tren Penjualan Bulanan -- Fluktuasi Musiman dengan Puncak di Akhir Tahun</h3>
+            <p>Garis putus-putus menunjukkan Target Sales bulanan. Titik puncak (peak) dan lembah (trough) di-highlight
+              khusus.</p>
+          </div>
+          <div class="chart-actions">
+            <span class="badge badge-success">Glow Neon & Target</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div id="chart-sales-profit-trend"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Grafik ini menunjukkan tren penjualan bulanan yang memiliki pola musiman
+          (seasonality). Penjualan cenderung melonjak tajam pada akhir tahun (Q4), sedangkan kuartal pertama (Q1)
+          mencatat volume terendah. Garis putus-putus emas mewakili target pertumbuhan penjualan periodik (+8%).
+        </div>
+      </div>
+
+      <!-- Chart 2: Category Distribution -->
+      <div class="chart-card view-page" id="chart-category-donut-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 2: Pangsa Kategori -- Sektor Teknologi Mendominasi Kontribusi Omset Global</h3>
+            <p>Distribusi total pendapatan berdasarkan departemen utama Superstore</p>
+          </div>
+        </div>
+        <div class="chart-body flex-center">
+          <div id="chart-category-donut"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Diagram donat ini memperlihatkan kontribusi dari tiga kategori utama perusahaan.
+          Kategori <strong>Teknologi</strong> memberikan kontribusi omset terbesar, diikuti oleh <strong>Office
+            Supplies</strong> (Alat Tulis) dan <strong>Furniture</strong> (Mebel).
+        </div>
+      </div>
+
+      <!-- Chart 3: Category Volume (Large) -->
+      <div class="chart-card view-page" id="chart-gap-volume-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 3: Volume Kategori -- Sektor Teknologi Memimpin Akumulasi Nilai Transaksi</h3>
+            <p>Total omset penjualan absolut per kategori utama untuk menilai ukuran kontribusi pasar</p>
+          </div>
+          <div class="chart-actions">
+            <span class="badge badge-success">Volume</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div id="chart-category-gap-volume"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Grafik kolom ini membandingkan volume penjualan bersih secara absolut. Nilai
+          penjualan tertinggi didominasi oleh kategori <strong>Teknologi</strong> yang melampaui kategori lainnya,
+          mempertegas perannya sebagai penggerak utama omset global.
+        </div>
+      </div>
+
+      <!-- Chart 4: Category Margin % (Small) -->
+      <div class="chart-card view-page" id="chart-gap-margin-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 4: Margin Kategori -- Defisit Furniture vs Laba Bersih Tinggi Teknologi</h3>
+            <p>Rasio margin bersih (%) per kategori (deteksi inefisiensi biaya operasional)</p>
+          </div>
+          <div class="chart-actions">
+            <span class="badge badge-success">Margin %</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div id="chart-category-gap-margin"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Grafik ini menyoroti rasio margin keuntungan bersih (%) per kategori produk. Di
+          sini terlihat area risiko kritis: meskipun kategori <strong>Teknologi</strong> memiliki margin keuntungan
+          tinggi dan sehat, kategori <strong>Furniture</strong> (Mebel) mengalami margin negatif (defisit), menunjukkan
+          inefisiensi biaya operasional atau pemberian diskon yang terlalu agresif.
+        </div>
+      </div>
+
+      <!-- Chart 5: Region Performance & Table (Large) -->
+      <div class="chart-card view-page" id="chart-region-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 5: Performa Wilayah -- Wilayah Barat & Timur Memimpin Pertumbuhan YoY Terkuat</h3>
+            <p>Performa penjualan & profit wilayah disandingkan dengan indikator pertumbuhan tahunan (YoY)</p>
+          </div>
+          <div class="chart-actions">
+            <span class="badge badge-success">Regio Insight</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div class="chart-sub-grid">
+            <div>
+              <h4 class="sub-chart-title"
+                style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-secondary); text-align: center;">
+                Performa Penjualan & Laba Wilayah</h4>
+              <div id="chart-region-column"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+              <h4 class="sub-chart-title"
+                style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-secondary); text-align: center;">Tabel
+                Komparatif Regional</h4>
+              <div class="table-responsive regional-comp-table-container">
+                <table class="regional-comp-table">
+                  <thead>
+                    <tr>
+                      <th>Wilayah</th>
+                      <th>YoY Growth</th>
+                      <th>Pelanggan</th>
+                      <th>Kategori Utama</th>
+                    </tr>
+                  </thead>
+                  <tbody id="region-comp-table-body">
+                    <!-- Dipopulasikan secara dinamis -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Analisis komparatif regional ini menggabungkan performa omset penjualan (batang)
+          dan tingkat laba bersih (garis). Wilayah <strong>Barat (West)</strong> dan <strong>Timur (East)</strong>
+          memimpin performa bisnis dengan pertumbuhan tahunan (YoY) terkuat serta profitabilitas yang solid, sedangkan
+          wilayah Tengah dan Selatan menunjukkan margin yang lebih tipis.
+        </div>
+      </div>
+
+      <!-- Chart 6: Sub-Category Profitability -->
+      <div class="chart-card view-page" id="chart-subcategory-bar-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 6: Laba Sub-Kategori -- Telepon & Kursi Terlaba, Meja Mengalami Defisit Terbesar</h3>
+            <p>Peringkat kontribusi laba bersih absolut dari seluruh sub-kategori produk Superstore</p>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div id="chart-subcategory-bar"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Peringkat laba bersih absolut per sub-kategori produk. Sub-kategori <strong>Telepon
+            (Phones)</strong> dan <strong>Kursi (Chairs)</strong> tercatat sebagai penyumbang keuntungan bersih
+          terbesar. Di sisi lain, sub-kategori <strong>Meja (Tables)</strong> dan <strong>Rak Buku (Bookcases)</strong>
+          mengalami kerugian operasional terdalam (batang merah), yang memerlukan peninjauan ulang struktur harga dan
+          diskon.
+        </div>
+      </div>
+
+      <!-- Chart 7: Top 10 State -->
+      <div class="chart-card view-page" id="chart-state-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 7: Performa State -- California & New York Mendominasi Pasar Nasional</h3>
+            <p>Sepuluh negara bagian dengan akumulasi volume penjualan tertinggi di tingkat nasional</p>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div id="chart-state-bar"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Grafik batang ini menampilkan 10 negara bagian teratas berdasarkan total volume
+          penjualan nasional. Pasar di negara bagian <strong>California</strong> dan <strong>New York</strong>
+          mendominasi secara signifikan dibanding wilayah lainnya, menjadikannya pasar inti yang sangat krusial bagi
+          kelangsungan bisnis.
+        </div>
+      </div>
+
+      <!-- Chart 8: Customer Segment Share -->
+      <div class="chart-card view-page" id="chart-segment-section">
+        <div class="chart-header">
+          <div>
+            <h3>Chart 8: Segmen Pelanggan -- Konsumen Ritel Menyumbang Lebih dari 50% Omset</h3>
+            <p>Proporsi kontribusi penjualan berdasarkan tiga segmen pasar utama Superstore</p>
+          </div>
+        </div>
+        <div class="chart-body flex-center">
+          <div id="chart-segment-donut"></div>
+        </div>
+        <div class="chart-narrative">
+          <strong>Analisis:</strong> Distribusi kontribusi omset berdasarkan segmen pasar utama. Segmen <strong>Konsumen
+            Ritel (Consumer)</strong> menyumbang lebih dari separuh total pendapatan perusahaan (50%+), diikuti oleh
+          segmen Korporasi (Corporate) dan Kantor Rumah (Home Office) sebagai pendukung sekunder.
+        </div>
+      </div>
+
+      <!-- Section Title for Evaluation -->
+      <section class="insights-container view-page" id="storytelling-evaluation-header"
+        style="margin-top: 40px; margin-bottom: 20px;">
+        <div class="section-title-container">
+          <i data-lucide="award" class="accent-icon"></i>
+          <h2>Evaluasi &amp; Penilaian Storytelling Visual</h2>
+        </div>
+      </section>
+
+      <!-- Petunjuk untuk Mahasiswa -->
+      <section class="assessment-card view-page" id="petunjuk-mahasiswa-section"
+        style="border-left: 4px solid var(--warning); background: linear-gradient(135deg, rgba(245, 158, 11, 0.04), rgba(245, 158, 11, 0.01)); position: relative; overflow: hidden; margin-bottom: 24px;">
+        <div
+          style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: rgba(245, 158, 11, 0.03); border-radius: 50%; filter: blur(20px); pointer-events: none;">
+        </div>
+        <div class="assessment-body" style="padding: 0;">
+          <h3
+            style="color: var(--warning); font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 14px; text-transform: none; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;">
+            <i data-lucide="book-open" style="width: 20px; height: 20px; color: var(--warning);"></i> Petunjuk untuk
+            Mahasiswa
+          </h3>
+          <p
+            style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px; font-weight: 500;">
+            Laporan ini <em>sengaja</em> dibuat dengan kelemahan storytelling yang tersebar di berbagai slide. Tugasmu
+            adalah:
+          </p>
+          <ul style="list-style: none; padding-left: 0; margin-bottom: 18px;">
+            <li
+              style="margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">
+              <span style="color: var(--warning); font-weight: bold; margin-top: 2px;">•</span>
+              <span>Identifikasi posisi setiap slide dalam story arc (<strong>Hook, Context, Tension, Climax, Insight,
+                  Action</strong>)</span>
+            </li>
+            <li
+              style="margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">
+              <span style="color: var(--warning); font-weight: bold; margin-top: 2px;">•</span>
+              <span>Lakukan <strong>"So What?" test</strong> untuk setiap chart -- apakah insight langsung
+                tersampaikan?</span>
+            </li>
+            <li
+              style="margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">
+              <span style="color: var(--warning); font-weight: bold; margin-top: 2px;">•</span>
+              <span>Audit <strong>visual hierarchy</strong> -- warna, judul, anotasi, dan clutter</span>
+            </li>
+            <li
+              style="margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">
+              <span style="color: var(--warning); font-weight: bold; margin-top: 2px;">•</span>
+              <span>Rekomendasikan <strong>3 perbaikan konkret</strong> dengan format Before-After</span>
+            </li>
+          </ul>
+          <div
+            style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 14px; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); display: flex; align-items: flex-start; gap: 8px;">
+            <i data-lucide="sparkles"
+              style="width: 16px; height: 16px; color: var(--warning); flex-shrink: 0; margin-top: 3px;"></i>
+            <span><strong style="color: var(--text-secondary);">Hint:</strong> perhatikan judul tiap chart, penggunaan
+              warna, dan apakah laporan berakhir dengan rekomendasi yang actionable.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panduan Penilai / Kunci Jawaban (Accordion Toggle) -->
+      <section class="assessment-card view-page" id="panduan-penilai-section" style="border-left: 4px solid var(--primary); background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0.01)); position: relative; overflow: hidden; margin-bottom: 24px;">
+        <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: rgba(99, 102, 241, 0.03); border-radius: 50%; filter: blur(20px); pointer-events: none;"></div>
+        <div class="assessment-body" style="padding: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; padding: 16px;" onclick="const content = document.getElementById('grader-guide-content'); const icon = document.getElementById('grader-guide-icon'); if (content.style.display === 'none') { content.style.display = 'block'; icon.setAttribute('data-lucide', 'chevron-up'); } else { content.style.display = 'none'; icon.setAttribute('data-lucide', 'chevron-down'); } lucide.createIcons();">
+            <h3 style="color: var(--primary); font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; text-transform: none; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;">
+              <i data-lucide="shield-check" style="width: 20px; height: 20px; color: var(--primary);"></i> Panduan Penilaian &amp; Kunci Jawaban (Khusus Penilai)
+            </h3>
+            <div style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-sans);">
+              <span>Klik untuk Buka/Tutup</span>
+              <i id="grader-guide-icon" data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+            </div>
+          </div>
+          
+          <div id="grader-guide-content" style="display: none; padding: 0 16px 16px 16px; border-top: 1px solid var(--border-color); margin-top: 0;">
+            <p style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.6; margin-top: 16px; margin-bottom: 16px; font-weight: 500;">
+              Berikut adalah panduan lengkap dan kunci jawaban resmi untuk memudahkan penilaian tugas visual storytelling mahasiswa:
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <!-- Ketentuan 1 -->
+              <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: var(--primary); font-size: 0.95rem; margin-bottom: 12px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                  <span style="background: var(--primary); color: #fff; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">A</span> Ketentuan 1: Pemetaan Posisi Slide dalam Story Arc
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px; line-height: 1.5;">
+                  Mahasiswa harus menempatkan minimal 5 dari 8 chart ke dalam posisi <strong>Story Arc</strong> yang tepat untuk membangun narasi yang koheren:
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[HOOK] - Chart 1 (Tren Penjualan Bulanan):</strong> 
+                    <span>Menarik perhatian penonton dengan fluktuasi penjualan tahunan yang dramatis (penurunan tajam di Februari vs puncak lonjakan di Desember).</span>
+                  </div>
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[CONTEXT] - Chart 2 &amp; 3 (Pangsa &amp; Volume Kategori):</strong> 
+                    <span>Membangun data latar belakang (baseline) bahwa kategori Teknologi memimpin perolehan omset penjualan secara nasional.</span>
+                  </div>
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[TENSION] - Chart 4 (Margin Kategori):</strong> 
+                    <span>Memperkenalkan konflik/masalah: kategori Furniture menyumbang volume besar tetapi menghasilkan rata-rata margin keuntungan negatif (merugi).</span>
+                  </div>
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[CLIMAX] - Chart 6 (Laba Sub-Kategori):</strong> 
+                    <span>Menunjukkan puncak konflik secara mendetail: kerugian terdalam didorong secara spesifik oleh sub-kategori <strong>Meja (Tables)</strong> dan <strong>Rak Buku (Bookcases)</strong>.</span>
+                  </div>
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[INSIGHT] - Chart 5 &amp; 7 (Performa Wilayah &amp; State):</strong> 
+                    <span>Memberikan penjelasan geografis mengenai pasar inti (California &amp; New York memimpin) serta wilayah kebocoran keuntungan (Central &amp; South).</span>
+                  </div>
+                  <div style="border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 4px;">
+                    <strong style="color: var(--text-primary);">[ACTION] - Rekomendasi Strategis AI &amp; Chart 8:</strong> 
+                    <span>Langkah konkret untuk menghentikan diskon pada produk Meja/Rak Buku, menaikkan harga, dan merealokasi inventaris ke sektor Teknologi/Telepon.</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ketentuan 2 -->
+              <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: var(--primary); font-size: 0.95rem; margin-bottom: 12px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                  <span style="background: var(--primary); color: #fff; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">B</span> Ketentuan 2: Hasil Uji "So What?" Test
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 10px; line-height: 1.5;">
+                  Evaluasi kualitatif kelayakan insight dari setiap chart (apakah langsung mengomunikasikan implikasi bisnis):
+                </p>
+                <div class="table-responsive">
+                  <table class="assessment-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse; margin-top: 5px;">
+                    <thead>
+                      <tr style="background: rgba(255,255,255,0.03);">
+                        <th style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: left; color: var(--text-primary); font-weight: bold; width: 15%;">Chart</th>
+                        <th style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: left; color: var(--text-primary); font-weight: bold; width: 65%;">Analisis Bisnis &amp; Kelayakan "So What?"</th>
+                        <th style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center; color: var(--text-primary); font-weight: bold; width: 20%;">Status Resmi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 1</strong> (Tren)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Mengidentifikasi pola musiman bisnis Superstore dengan target line 8% sebagai tolok ukur performa.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos So What?</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 2</strong> (Donut)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Memberikan konteks awal bahwa kategori Teknologi menguasai omset penjualan nasional.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos (Context)</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 3</strong> (Volume)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Mendukung data nominal absolut penjualan kategori Teknologi di tingkat nasional.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos (Context)</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 4</strong> (Margin %)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Menyoroti konflik utama di mana kategori Furniture merugi (margin negatif) di balik tingginya penjualan.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos So What?</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 5</strong> (Wilayah)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Menunjukkan performa profitabilitas stabil di wilayah Timur &amp; Barat, berbanding terbalik dengan wilayah Tengah &amp; Selatan yang kritis.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos So What?</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 6</strong> (Sub-Kat)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Menunjuk langsung akar kerugian Furniture yang berasal dari sub-kategori Meja (Tables) dan Rak Buku (Bookcases) dengan warna merah kontras.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--success); font-weight: 600;">Lolos So What?</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 7</strong> (State)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Hanya memuat daftar Top 10 State secara deskriptif. Judul tidak bercerita sehingga membingungkan arah aksi bagi audiens.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--warning); font-weight: 600;">Perlu Revisi</span></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color);"><strong>Chart 8</strong> (Segmen)</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); color: var(--text-secondary);">Menampilkan porsi segmen pelanggan secara deskriptif (Ritel >50%) tanpa menghubungkan implikasi logistik/pemasaran.</td>
+                        <td style="padding: 8px 10px; border: 1px solid var(--border-color); text-align: center;"><span style="color: var(--warning); font-weight: 600;">Perlu Revisi</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Ketentuan 3 -->
+              <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: var(--primary); font-size: 0.95rem; margin-bottom: 12px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                  <span style="background: var(--primary); color: #fff; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">C</span> Ketentuan 3: Audit Visual Hierarchy &amp; Storytelling
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 10px; line-height: 1.5;">
+                  Mahasiswa harus mencentang/mengidentifikasi aspek kegagalan visual hierarki berikut dalam evaluasi mandirinya:
+                </p>
+                <ul style="list-style: none; padding-left: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                  <li>• <strong style="color: var(--text-primary);">Judul Naratif:</strong> Chart bawaan hanya memakai judul deskriptif (misal: "Top 10 State"). Penilai mencari pemahaman mahasiswa bahwa judul harus diubah menjadi bercerita (storytelling).</li>
+                  <li>• <strong style="color: var(--text-primary);">Warna Kontras Semantis:</strong> Batang sub-kategori yang merugi harus diwarnai kontras (Pink/Merah Neon) untuk mengarahkan pandangan audiens pada isu profit.</li>
+                  <li>• <strong style="color: var(--text-primary);">Anotasi Kontekstual:</strong> Penambahan target line 8% dan tanda puncak/terendah di grafik tren bulanan untuk memberikan kedalaman informasi.</li>
+                  <li>• <strong style="color: var(--text-primary);">Decluttering:</strong> Menghapus gridlines horizontal yang mengganggu serta visual yang redundan.</li>
+                </ul>
+              </div>
+              
+              <!-- Ketentuan 4 -->
+              <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: var(--primary); font-size: 0.95rem; margin-bottom: 12px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                  <span style="background: var(--primary); color: #fff; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">D</span> Ketentuan 4: Rekomendasi Perbaikan Konkret (Before-After)
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px; line-height: 1.5;">
+                  Mahasiswa wajib merekomendasikan 3 perbaikan konkret dengan format **Before-After** yang jelas (bukan saran umum):
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary);">
+                  <div style="background: rgba(255, 255, 255, 0.01); padding: 10px; border-radius: 4px; border-left: 3px solid var(--primary);">
+                    <strong style="color: var(--text-primary);">1. Perubahan Judul Narasi (Storytelling Title)</strong>
+                    <div style="padding-left: 8px; font-size: 0.82rem;">
+                      <div><strong>Before:</strong> "Volume Kategori" atau "Top 10 State"</div>
+                      <div><strong>After:</strong> "Volume Kategori -- Sektor Teknologi Memimpin Akumulasi Nilai Transaksi"</div>
+                    </div>
+                  </div>
+                  <div style="background: rgba(255, 255, 255, 0.01); padding: 10px; border-radius: 4px; border-left: 3px solid var(--success);">
+                    <strong style="color: var(--text-primary);">2. Pewarnaan Semantis (Semantic Highlighting)</strong>
+                    <div style="padding-left: 8px; font-size: 0.82rem;">
+                      <div><strong>Before:</strong> Grafik batang sub-kategori berwarna ungu seragam.</div>
+                      <div><strong>After:</strong> Sub-kategori Tables dan Bookcases yang merugi diwarnai merah menyala, lainnya abu-abu/hijau netral.</div>
+                    </div>
+                  </div>
+                  <div style="background: rgba(255, 255, 255, 0.01); padding: 10px; border-radius: 4px; border-left: 3px solid var(--warning);">
+                    <strong style="color: var(--text-primary);">3. Rekomendasi Actionable &amp; Penutup</strong>
+                    <div style="padding-left: 8px; font-size: 0.82rem;">
+                      <div><strong>Before:</strong> Laporan selesai tanpa ada arahan rekomendasi taktis.</div>
+                      <div><strong>After:</strong> Memberikan rekomendasi strategis di akhir (mengurangi diskon produk Meja, menaikkan harga jual, realokasi stok ke Telepon).</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ketentuan E (State Performance) -->
+              <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); border-left: 4px solid var(--warning);">
+                <h4 style="color: var(--warning); font-size: 0.95rem; margin-bottom: 12px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                  <span style="background: var(--warning); color: #fff; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">E</span> Ketentuan Khusus: Chart 7 (Performa State)
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 10px; line-height: 1.5;">
+                  Ketentuan wajib untuk **Chart 7 (Performa State)** adalah:
+                </p>
+                <ul style="list-style: none; padding-left: 0; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.5; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
+                  <li>• **HANYA menampilkan 1 diagram saja** (yaitu Horizontal Bar Chart).</li>
+                  <li>• Urutan 10 negara bagian (states) terbaik dari tertinggi ke terendah secara presisi berdasarkan total volume penjualan:</li>
+                </ul>
+                <div style="background: rgba(0, 0, 0, 0.15); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.88rem; line-height: 1.6; margin-bottom: 12px;">
+                  <ol style="padding-left: 20px; color: var(--text-primary); margin: 0; font-weight: 500;">
+                    <li><strong>California</strong> (Paling mendominasi pasar nasional, total: $457.687,63)</li>
+                    <li><strong>New York</strong> (Total: $310.876,27)</li>
+                    <li><strong>Texas</strong> (Total: $170.188,05)</li>
+                    <li><strong>Washington</strong> (Total: $138.641,27)</li>
+                    <li><strong>Pennsylvania</strong> (Total: $116.511,91)</li>
+                    <li><strong>Florida</strong> (Total: $89.473,71)</li>
+                    <li><strong>Illinois</strong> (Total: $80.166,10)</li>
+                    <li><strong>Ohio</strong> (Total: $78.258,14)</li>
+                    <li><strong>Michigan</strong> (Total: $76.269,61)</li>
+                    <li><strong>Virginia</strong> (Total: $70.636,72) — <span style="color: var(--success); font-weight: bold;">URUTAN 10 YANG BENAR</span></li>
+                  </ol>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.08); padding: 12px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.82rem; line-height: 1.5; color: #fca5a5; display: flex; align-items: flex-start; gap: 8px;">
+                  <i data-lucide="alert-triangle" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;"></i>
+                  <div>
+                    <strong>PENTING UNTUK DIINGAT:</strong>
+                    <div style="margin-top: 4px;">• <strong>Kasus North Carolina:</strong> North Carolina berada di urutan ke-11 ($55.603,16). Mahasiswa yang menulisnya di urutan ke-10 adalah **salah**. North Carolina memang memiliki jumlah record transaksi terbanyak ke-10 (249 record), tetapi volume penjualan (Sales) menempatkan <strong>Virginia</strong> sebagai urutan ke-10 yang benar.</div>
+                    <div style="margin-top: 4px;">• <strong>Error Label [object Object]:</strong> Sumbu Y Chart 7 harus menampilkan nama state asli. Tampilan label <code>[object Object]</code> akibat kegagalan parsing properti state di data.js wajib dinyatakan tidak memenuhi syarat kelayakan.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGKAH 1: Story Arc -->
+      <section class="assessment-card view-page" id="langkah-1-section">
+        <div class="assessment-header langkah-1-accent">
+          <div class="header-left">
+            <span class="step-num">01</span>
+            <div>
+              <h3>Pemetaan Story Arc</h3>
+              <p class="step-sub">LANGKAH 1 - IDENTIFIKASI STRUKTUR NARASI</p>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="badge badge-accent">TEMPATKAN SETIAP SLIDE/CHART KE DALAM TAHAP YANG TEPAT</span>
+          </div>
+        </div>
+
+        <div class="assessment-body">
+          <div class="box-description">
+            <p>Untuk setiap slide atau chart dalam presentasimu, tentukan posisinya dalam story arc. Pilih tahap dari
+              dropdown, lalu isi deskripsi singkat di kolom teks. Jika presentasimu tidak punya semua tahap, kosongkan
+              yang tidak ada.</p>
+          </div>
+
+          <div class="diagram-title">
+            DIAGRAM STORY ARC -- PILIH TIAP KOLOM UNTUK ASSIGN CHART
+          </div>
+
+          <div class="story-arc-grid">
+            <!-- Hook Column -->
+            <div class="story-arc-col arc-hook">
+              <select class="story-arc-select" id="arc-hook-select" data-column="hook">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-hook">--</div>
+              <div class="arc-label">HOOK</div>
+            </div>
+
+            <!-- Context Column -->
+            <div class="story-arc-col arc-context">
+              <select class="story-arc-select" id="arc-context-select" data-column="context">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-context">--</div>
+              <div class="arc-label">CONTEXT</div>
+            </div>
+
+            <!-- Tension Column -->
+            <div class="story-arc-col arc-tension">
+              <select class="story-arc-select" id="arc-tension-select" data-column="tension">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-tension">--</div>
+              <div class="arc-label">TENSION</div>
+            </div>
+
+            <!-- Climax Column -->
+            <div class="story-arc-col arc-climax">
+              <select class="story-arc-select" id="arc-climax-select" data-column="climax">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-climax">--</div>
+              <div class="arc-label">CLIMAX</div>
+            </div>
+
+            <!-- Insight Column -->
+            <div class="story-arc-col arc-insight">
+              <select class="story-arc-select" id="arc-insight-select" data-column="insight">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-insight">--</div>
+              <div class="arc-label">INSIGHT</div>
+            </div>
+
+            <!-- Action Column -->
+            <div class="story-arc-col arc-action">
+              <select class="story-arc-select" id="arc-action-select" data-column="action">
+                <option value="">--</option>
+                <option value="Chart 1">Chart 1</option>
+                <option value="Chart 2">Chart 2</option>
+                <option value="Chart 3">Chart 3</option>
+                <option value="Chart 4">Chart 4</option>
+                <option value="Chart 5">Chart 5</option>
+                <option value="Chart 6">Chart 6</option>
+                <option value="Chart 7">Chart 7</option>
+                <option value="Chart 8">Chart 8</option>
+              </select>
+              <div class="dotted-dropzone" id="dropzone-action">--</div>
+              <div class="arc-label">ACTION</div>
+            </div>
+          </div>
+
+          <div class="desc-box">
+            <label for="story-arc-description">Deskripsikan hasil pemetaanmu. Contoh:</label>
+            <textarea id="story-arc-description" placeholder="Deskripsikan hasil pemetaanmu. Contoh:
+- Slide 1-2: HOOK -- membuka dengan angka penjualan yang turun 15%
+- Slide 3-4: CONTEXT -- baseline 3 tahun terakhir dan posisi vs target
+- Slide 5-6: TENSION -- Q3 jadi titik terendah, breakdown per region
+- Tidak ada tahap INSIGHT dan ACTION yang eksplisit (ini kelemahan utama)
+
+Kesimpulan: Presentasi ini bottom-up, tidak ada hook dan call to action yang jelas."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGKAH 2: So What? Test -->
+      <section class="assessment-card view-page" id="langkah-2-section">
+        <div class="assessment-header langkah-2-accent">
+          <div class="header-left">
+            <span class="step-num">02</span>
+            <div>
+              <h3>Uji Relevansi Setiap Chart</h3>
+              <p class="step-sub">LANGKAH 2 - "SO WHAT?" TEST</p>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="badge badge-accent">SATU CHART - SATU JAWABAN "SO WHAT"</span>
+          </div>
+        </div>
+
+        <div class="assessment-body">
+          <div class="box-description">
+            <p>Untuk setiap chart atau slide utama, tulis satu kalimat jawaban atas "So what?" -- apa artinya data ini
+              bagi audiens? Jika tidak bisa menjawab dalam satu kalimat, tandai chart tersebut sebagai kandidat HAPUS
+              atau REVISI.</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="assessment-table">
+              <thead>
+                <tr>
+                  <th style="width: 15%;">CHART/SLIDE</th>
+                  <th style="width: 65%;">JAWABAN "SO WHAT?" DALAM SATU KALIMAT</th>
+                  <th style="width: 20%;">STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Row 1 -->
+                <tr>
+                  <td><strong>Chart 1</strong></td>
+                  <td><input type="text" id="so-what-chart-1" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-1" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 2 -->
+                <tr>
+                  <td><strong>Chart 2</strong></td>
+                  <td><input type="text" id="so-what-chart-2" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-2" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 3 -->
+                <tr>
+                  <td><strong>Chart 3</strong></td>
+                  <td><input type="text" id="so-what-chart-3" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-3" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 4 -->
+                <tr>
+                  <td><strong>Chart 4</strong></td>
+                  <td><input type="text" id="so-what-chart-4" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-4" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 5 -->
+                <tr>
+                  <td><strong>Chart 5</strong></td>
+                  <td><input type="text" id="so-what-chart-5" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-5" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 6 -->
+                <tr>
+                  <td><strong>Chart 6</strong></td>
+                  <td><input type="text" id="so-what-chart-6" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-6" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 7 -->
+                <tr>
+                  <td><strong>Chart 7</strong></td>
+                  <td><input type="text" id="so-what-chart-7" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-7" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+                <!-- Row 8 -->
+                <tr>
+                  <td><strong>Chart 8</strong></td>
+                  <td><input type="text" id="so-what-chart-8" class="so-what-input"
+                      placeholder="Jawaban 'So what?' dalam satu kalimat..."></td>
+                  <td>
+                    <select id="status-chart-8" class="status-select">
+                      <option value="">--</option>
+                      <option value="Lolos">Lolos So What?</option>
+                      <option value="Revisi">Perlu Revisi</option>
+                      <option value="Hapus">Kandidat Hapus</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="desc-box" style="margin-top: 20px;">
+            <label for="so-what-summary">Ringkasan:</label>
+            <textarea id="so-what-summary"
+              placeholder="Ringkasan: dari N chart yang diaudit, berapa yang lolos So What test? Berapa yang perlu direvisi? Berapa yang sebaiknya dihapus?"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGKAH 3: Visual Checklist -->
+      <section class="assessment-card view-page" id="langkah-3-section">
+        <div class="assessment-header langkah-3-accent">
+          <div class="header-left">
+            <span class="step-num">03</span>
+            <div>
+              <h3>Checklist Visual Hierarchy</h3>
+              <p class="step-sub">LANGKAH 3 - AUDIT VISUAL HIERARCHY</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="assessment-body">
+          <div class="box-description">
+            <p>Centang setiap item yang sudah diterapkan dengan benar dalam presentasi yang kamu audit. Item yang tidak
+              dicentang adalah area yang perlu diperbaiki.</p>
+          </div>
+
+          <div class="checklist-grid">
+            <!-- Item 1 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-1" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Warna semantis</strong>
+                <span class="checklist-sub">-- merah untuk negatif/alert, hijau untuk positif/target tercapai, abu-abu
+                  untuk data sekunder</span>
+              </div>
+            </label>
+            <!-- Item 2 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-2" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Satu highlight per chart</strong>
+                <span class="checklist-sub">-- tidak semua elemen diberi warna mencolok, hanya elemen terpenting</span>
+              </div>
+            </label>
+            <!-- Item 3 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-3" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Judul naratif</strong>
+                <span class="checklist-sub">-- judul menyampaikan insight, bukan hanya deskripsi (bukan "Revenue by
+                  Quarter" tapi "Revenue Q4 Melampaui Target")</span>
+              </div>
+            </label>
+            <!-- Item 4 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-4" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Anotasi kontekstual</strong>
+                <span class="checklist-sub">-- ada penanda untuk event penting, peak/trough, atau target line</span>
+              </div>
+            </label>
+            <!-- Item 5 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-5" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Decluttered</strong>
+                <span class="checklist-sub">-- tidak ada gridline berlebih, legend yang tidak perlu, atau angka yang
+                  tidak relevan</span>
+              </div>
+            </label>
+            <!-- Item 6 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-6" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Comparison tersedia</strong>
+                <span class="checklist-sub">-- setiap angka punya konteks (vs target, vs tahun lalu, vs benchmark
+                  industri)</span>
+              </div>
+            </label>
+            <!-- Item 7 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-7" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Satu pesan per slide</strong>
+                <span class="checklist-sub">-- tidak ada slide yang mencoba menyampaikan lebih dari satu insight
+                  utama</span>
+              </div>
+            </label>
+            <!-- Item 8 -->
+            <label class="checklist-item">
+              <input type="checkbox" id="checklist-item-8" class="checklist-checkbox">
+              <span class="checkbox-custom"></span>
+              <div class="checklist-content">
+                <strong>Call to Action eksplisit</strong>
+                <span class="checklist-sub">-- slide/bagian terakhir berisi rekomendasi konkret dan actionable</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="desc-box" style="margin-top: 20px;">
+            <label for="visual-hierarchy-comments">Tuliskan komentar tambahan tentang visual hierarchy presentasi ini.
+              Elemen mana yang paling bermasalah? Apa yang sudah dilakukan dengan baik?</label>
+            <textarea id="visual-hierarchy-comments"
+              placeholder="Tuliskan komentar tambahan tentang visual hierarchy presentasi ini. Elemen mana yang paling bermasalah? Apa yang sudah dilakukan dengan baik?"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGKAH 4: Before & After Rekomendasi -->
+      <section class="assessment-card view-page" id="langkah-4-section">
+        <div class="assessment-header langkah-4-accent">
+          <div class="header-left">
+            <span class="step-num">04</span>
+            <div>
+              <h3>Before &amp; After Rekomendasi</h3>
+              <p class="step-sub">LANGKAH 4 - 3 REKOMENDASI PERBAIKAN KONKRET</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="assessment-body">
+          <div class="box-description">
+            <p>Tulis 3 perubahan spesifik dengan format Before-After dan justifikasi mengapa perubahan ini akan
+              meningkatkan storytelling. Hindari rekomendasi yang terlalu umum seperti "perbaiki warna".</p>
+          </div>
+
+          <div class="recommendations-container">
+            <!-- Rekomendasi 1 -->
+            <div class="reco-group">
+              <h4 class="reco-title">REKOMENDASI 1</h4>
+              <div class="reco-fields-row">
+                <div class="reco-field">
+                  <label for="reco-1-element">ELEMEN YANG DIUBAH (SLIDE/CHART KE BERAPA?)</label>
+                  <input type="text" id="reco-1-element" placeholder="Contoh: Judul slide 3">
+                </div>
+                <div class="reco-field">
+                  <label for="reco-1-dimension">DIMENSI PERUBAHAN</label>
+                  <select id="reco-1-dimension">
+                    <option value="">-- Pilih dimensi --</option>
+                    <option value="Visual Hierarchy">Visual Hierarchy</option>
+                    <option value="Decluttering">Decluttering</option>
+                    <option value="Color">Semantic Color</option>
+                    <option value="Annotation">Anotasi Kontekstual</option>
+                    <option value="Storytelling">Narrative / Storytelling</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+              </div>
+              <div class="reco-textareas-row">
+                <div class="reco-textarea-container">
+                  <label for="reco-1-before">SEBELUM (KONDISI SAAT INI)</label>
+                  <textarea id="reco-1-before"
+                    placeholder="Contoh: Judul slide 3 sekarang berbunyi 'Revenue by Region 2024' -- hanya deskriptif, tidak ada insight."></textarea>
+                </div>
+                <div class="reco-textarea-container">
+                  <label for="reco-1-after">SESUDAH (YANG DIREKOMENDASIKAN)</label>
+                  <textarea id="reco-1-after"
+                    placeholder="Contoh: Ganti menjadi 'South &amp; Central Tertinggal 19-22% dari Target -- Butuh Intervensi Q4' agar insight langsung tersampaikan di judul."></textarea>
+                </div>
+              </div>
+              <div class="desc-box">
+                <label for="reco-1-justification">Justifikasi: mengapa perubahan ini akan meningkatkan
+                  storytelling?</label>
+                <textarea id="reco-1-justification" placeholder="Justifikasi..."></textarea>
+              </div>
+            </div>
+
+            <!-- Rekomendasi 2 -->
+            <div class="reco-group"
+              style="margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 24px;">
+              <h4 class="reco-title">REKOMENDASI 2</h4>
+              <div class="reco-fields-row">
+                <div class="reco-field">
+                  <label for="reco-2-element">ELEMEN YANG DIUBAH (SLIDE/CHART KE BERAPA?)</label>
+                  <input type="text" id="reco-2-element" placeholder="Contoh: Chart 1 Tren Penjualan">
+                </div>
+                <div class="reco-field">
+                  <label for="reco-2-dimension">DIMENSI PERUBAHAN</label>
+                  <select id="reco-2-dimension">
+                    <option value="">-- Pilih dimensi --</option>
+                    <option value="Visual Hierarchy">Visual Hierarchy</option>
+                    <option value="Decluttering">Decluttering</option>
+                    <option value="Color">Semantic Color</option>
+                    <option value="Annotation">Anotasi Kontekstual</option>
+                    <option value="Storytelling">Narrative / Storytelling</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+              </div>
+              <div class="reco-textareas-row">
+                <div class="reco-textarea-container">
+                  <label for="reco-2-before">SEBELUM (KONDISI SAAT INI)</label>
+                  <textarea id="reco-2-before" placeholder="Kondisi Sebelum..."></textarea>
+                </div>
+                <div class="reco-textarea-container">
+                  <label for="reco-2-after">SESUDAH (YANG DIREKOMENDASIKAN)</label>
+                  <textarea id="reco-2-after" placeholder="Kondisi Sesudah..."></textarea>
+                </div>
+              </div>
+              <div class="desc-box">
+                <label for="reco-2-justification">Justifikasi: mengapa perubahan ini akan meningkatkan
+                  storytelling?</label>
+                <textarea id="reco-2-justification" placeholder="Justifikasi..."></textarea>
+              </div>
+            </div>
+
+            <!-- Rekomendasi 3 -->
+            <div class="reco-group"
+              style="margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 24px;">
+              <h4 class="reco-title">REKOMENDASI 3</h4>
+              <div class="reco-fields-row">
+                <div class="reco-field">
+                  <label for="reco-3-element">ELEMEN YANG DIUBAH (SLIDE/CHART KE BERAPA?)</label>
+                  <input type="text" id="reco-3-element" placeholder="Contoh: Penutup Presentasi">
+                </div>
+                <div class="reco-field">
+                  <label for="reco-3-dimension">DIMENSI PERUBAHAN</label>
+                  <select id="reco-3-dimension">
+                    <option value="">-- Pilih dimensi --</option>
+                    <option value="Visual Hierarchy">Visual Hierarchy</option>
+                    <option value="Decluttering">Decluttering</option>
+                    <option value="Color">Semantic Color</option>
+                    <option value="Annotation">Anotasi Kontekstual</option>
+                    <option value="Storytelling">Narrative / Storytelling</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+              </div>
+              <div class="reco-textareas-row">
+                <div class="reco-textarea-container">
+                  <label for="reco-3-before">SEBELUM (KONDISI SAAT INI)</label>
+                  <textarea id="reco-3-before" placeholder="Kondisi Sebelum..."></textarea>
+                </div>
+                <div class="reco-textarea-container">
+                  <label for="reco-3-after">SESUDAH (YANG DIREKOMENDASIKAN)</label>
+                  <textarea id="reco-3-after" placeholder="Kondisi Sesudah..."></textarea>
+                </div>
+              </div>
+              <div class="desc-box">
+                <label for="reco-3-justification">Justifikasi: mengapa perubahan ini akan meningkatkan
+                  storytelling?</label>
+                <textarea id="reco-3-justification" placeholder="Justifikasi..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Controls for Assessment -->
+          <div class="assessment-controls"
+            style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
+            <button id="btn-save-assessment" class="btn btn-primary flex-center">
+              <i data-lucide="save"></i>
+              <span>Simpan Evaluasi</span>
+            </button>
+            <button id="btn-print-assessment" class="btn btn-secondary flex-center">
+              <i data-lucide="printer"></i>
+              <span>Cetak Hasil Evaluasi (PDF)</span>
+            </button>
+            <button id="btn-reset-assessment" class="btn btn-danger flex-center">
+              <i data-lucide="trash-2"></i>
+              <span>Reset Formulir</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>&copy; 2026 Superstore Analytics. Dibuat dengan metrik kinerja fidelitas tinggi.</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Include data source first -->
+  <script src="data.js?v=4"></script>
+  <!-- Include main application script -->
+  <script src="script.js?v=4"></script>
+</body>
+
+</html>
