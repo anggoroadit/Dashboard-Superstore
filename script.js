@@ -377,14 +377,18 @@ function showPage(targetId) {
   pages.forEach(p => p.classList.remove("active"));
   targetElement.classList.add("active");
 
-  // Show storytelling evaluation header if on an assessment step page
+  // Show storytelling evaluation header, student instructions, and grader guide if on an assessment step page
   const evalHeader = document.getElementById("storytelling-evaluation-header");
-  if (evalHeader) {
-    if (targetId.startsWith("#langkah-")) {
-      evalHeader.classList.add("active");
-    } else {
-      evalHeader.classList.remove("active");
-    }
+  const petunjuk = document.getElementById("petunjuk-mahasiswa-section");
+  const panduan = document.getElementById("panduan-penilai-section");
+  if (targetId.startsWith("#langkah-")) {
+    if (evalHeader) evalHeader.classList.add("active");
+    if (petunjuk) petunjuk.classList.add("active");
+    if (panduan) panduan.classList.add("active");
+  } else {
+    if (evalHeader) evalHeader.classList.remove("active");
+    if (petunjuk) petunjuk.classList.remove("active");
+    if (panduan) panduan.classList.remove("active");
   }
 
   // 2. Update active link in sidebar
@@ -514,7 +518,9 @@ function generateAnalyticalNarratives() {
     profitText.textContent = "Tidak dapat menghitung faktor profitabilitas karena dataset kosong.";
     discountText.textContent = "Sensitivitas diskon memerlukan input transaksi yang valid.";
     recText.textContent = "Sesuaikan parameter di atas untuk menilai kembali rekomendasi strategis.";
-    quickRec.textContent = "Menunggu data transaksi. Periksa batas filter.";
+    if (quickRec) {
+      quickRec.textContent = "Menunggu data transaksi. Periksa batas filter.";
+    }
     return;
   }
 
@@ -607,7 +613,9 @@ function generateAnalyticalNarratives() {
   }
 
   recText.innerHTML = fullRecText;
-  quickRec.innerHTML = quickRecText;
+  if (quickRec) {
+    quickRec.innerHTML = quickRecText;
+  }
 }
 
 // Chart Initializations
