@@ -547,8 +547,8 @@ function generateAnalyticalNarratives() {
   const catPercentage = ((topCategory.sales / totalSales) * 100).toFixed(1);
 
   // Translate for display
-  const displayTopCat = TRANSLATIONS[topCategory.name] || topCategory.name;
-  const displayTopSub = TRANSLATIONS[topSub.name] || topSub.name;
+  const displayTopCat = topCategory.name;
+  const displayTopSub = topSub.name;
 
   salesText.innerHTML = `Secara keseluruhan, konfigurasi filter saat ini mencatat total pendapatan sebesar <strong>${formatCurrency(totalSales)}</strong>. Sektor yang memimpin adalah <strong>${displayTopCat}</strong>, yang menyumbang <strong>${catPercentage}%</strong> dari total omset. Segmen produk dengan kinerja tertinggi adalah <strong>${displayTopSub}</strong>, dengan volume penjualan sebesar <strong>${formatCurrency(topSub.sales)}</strong>. Lini bisnis menunjukkan distribusi yang stabil di seluruh saluran aktif.`;
 
@@ -569,8 +569,8 @@ function generateAnalyticalNarratives() {
   const totalProfit = currentData.reduce((sum, item) => sum + item.profit, 0);
   const totalMargin = (totalSales > 0) ? ((totalProfit / totalSales) * 100).toFixed(1) : "0.0";
 
-  const displayTopProfitableSub = TRANSLATIONS[topProfitableSub.name] || topProfitableSub.name;
-  const displayBottomProfitableSub = TRANSLATIONS[bottomProfitableSub.name] || bottomProfitableSub.name;
+  const displayTopProfitableSub = topProfitableSub.name;
+  const displayBottomProfitableSub = bottomProfitableSub.name;
 
   profitText.innerHTML = `Total laba bersih mencapai <strong>${formatCurrency(totalProfit)}</strong>, menunjukkan akumulasi margin operasional sebesar <strong>${totalMargin}%</strong>. Sub-kategori <strong>${displayTopProfitableSub}</strong> menjadi mesin laba utama dengan menghasilkan margin absolut sebesar <strong>${formatCurrency(topProfitableSub.profit)}</strong>. Sebaliknya, sub-kategori <strong>${displayBottomProfitableSub}</strong> menjadi beban terbesar pada kinerja keuangan dengan hasil bersih negatif sebesar <strong class="trend-negative">${formatCurrency(bottomProfitableSub.profit)}</strong>.`;
 
@@ -696,7 +696,7 @@ function initCharts() {
       fontFamily: 'var(--font-sans)',
       background: 'transparent'
     },
-    labels: ['Mebel', 'Alat Tulis Kantor', 'Teknologi'],
+    labels: ['Furniture', 'Office Supplies', 'Technology'],
     colors: [chartStyles.primary, chartStyles.accent, chartStyles.success],
     legend: {
       position: 'bottom',
@@ -756,7 +756,7 @@ function initCharts() {
     },
     dataLabels: { enabled: false },
     xaxis: {
-      categories: ['Mebel', 'Alat Tulis Kantor', 'Teknologi'],
+      categories: ['Furniture', 'Office Supplies', 'Technology'],
       labels: {
         style: { colors: chartStyles.textPrimary }
       }
@@ -801,7 +801,7 @@ function initCharts() {
     },
     dataLabels: { enabled: false },
     xaxis: {
-      categories: ['Mebel', 'Alat Tulis Kantor', 'Teknologi'],
+      categories: ['Furniture', 'Office Supplies', 'Technology'],
       labels: {
         style: { colors: chartStyles.textMuted },
         formatter: (val) => `${val.toFixed(1)}%`
@@ -840,7 +840,7 @@ function initCharts() {
     dataLabels: { enabled: false },
     stroke: { width: [0, 4], curve: 'smooth' },
     xaxis: {
-      categories: ['Tengah', 'Timur', 'Selatan', 'Barat'],
+      categories: ['Central', 'East', 'South', 'West'],
       labels: { style: { colors: chartStyles.textMuted } }
     },
     yaxis: [
@@ -995,7 +995,7 @@ function initCharts() {
         }
       }
     },
-    labels: ['Konsumen', 'Korporasi', 'Kantor Rumah'],
+    labels: ['Consumer', 'Corporate', 'Home Office'],
     colors: [chartStyles.primary, chartStyles.accent, chartStyles.warning],
     legend: {
       show: true,
@@ -1014,7 +1014,7 @@ function initCharts() {
       }
     }
   };
-  segmentChart = new ApexCharts(document.querySelector("#chart-segment-donut"), segmentOptions);
+  segmentChart = new ApexCharts(document.querySelector("#chart-segment-bar"), segmentOptions);
   segmentChart.render();
 }
 
@@ -1241,7 +1241,7 @@ function updateCharts() {
   gapVolumeChart.updateOptions({
     colors: [chartStyles.primary],
     xaxis: {
-      categories: ['Mebel', 'Alat Tulis Kantor', 'Teknologi'],
+      categories: ['Furniture', 'Office Supplies', 'Technology'],
       labels: {
         style: { colors: chartStyles.textPrimary }
       }
@@ -1280,7 +1280,7 @@ function updateCharts() {
       }
     },
     xaxis: {
-      categories: ['Mebel', 'Alat Tulis Kantor', 'Teknologi'],
+      categories: ['Furniture', 'Office Supplies', 'Technology'],
       labels: {
         style: { colors: chartStyles.textMuted },
         formatter: (val) => `${val.toFixed(1)}%`
@@ -1318,7 +1318,7 @@ function updateCharts() {
   regionChart.updateOptions({
     colors: [chartStyles.primary, chartStyles.success],
     xaxis: {
-      categories: ['Tengah', 'Timur', 'Selatan', 'Barat'],
+      categories: ['Central', 'East', 'South', 'West'],
       labels: { style: { colors: chartStyles.textMuted } }
     },
     yaxis: [
@@ -1406,11 +1406,11 @@ function updateCharts() {
       Object.keys(regCatSales).forEach(cat => {
         if (regCatSales[cat] > maxCatSales) {
           maxCatSales = regCatSales[cat];
-          topCat = TRANSLATIONS[cat] || cat;
+          topCat = cat;
         }
       });
 
-      const displayRegion = TRANSLATIONS[reg] || reg;
+      const displayRegion = reg;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -1447,7 +1447,7 @@ function updateCharts() {
       }
     },
     xaxis: {
-      categories: sortedSubCats.map(sub => TRANSLATIONS[sub] || sub),
+      categories: sortedSubCats,
       labels: {
         style: { colors: chartStyles.textMuted },
         formatter: (val) => formatCompact(val)
@@ -1616,9 +1616,9 @@ function renderTable() {
     const isProfitable = row.profit >= 0;
     const tr = document.createElement("tr");
 
-    const displayRegion = TRANSLATIONS[row.region] || row.region;
-    const displayCategory = TRANSLATIONS[row.category] || row.category;
-    const displaySubCategory = TRANSLATIONS[row.subCategory] || row.subCategory;
+    const displayRegion = row.region;
+    const displayCategory = row.category;
+    const displaySubCategory = row.subCategory;
 
     tr.innerHTML = `
       <td>${row.orderId}</td>
