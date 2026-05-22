@@ -20,7 +20,7 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 
 <body>
@@ -95,7 +95,13 @@
             </a>
           </li>
 
-
+          <li class="nav-section-title">RINGKASAN</li>
+          <li id="nav-summary">
+            <a href="#chart-summary-section">
+              <i data-lucide="file-text"></i>
+              <span>Ringkasan &amp; Kesimpulan Analisis</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -396,10 +402,35 @@
         <div class="chart-body">
           <div id="chart-sales-profit-trend"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Grafik ini menunjukkan tren penjualan bulanan yang memiliki pola musiman
-          (seasonality). Penjualan cenderung melonjak tajam pada akhir tahun (Q4), sedangkan kuartal pertama (Q1)
-          mencatat volume terendah. Garis putus-putus emas mewakili target pertumbuhan penjualan periodik (+8%).
+
+        <!-- Yearly Q1-Q4 Breakdown Table -->
+        <div class="yearly-table-section">
+          <div class="yearly-table-header">
+            <i data-lucide="calendar" style="width:16px;height:16px;color:var(--primary);"></i>
+            <h4>Breakdown Penjualan Per Tahun &amp; Kuartal (Q1–Q4)</h4>
+          </div>
+          <div class="table-responsive">
+            <table class="yearly-breakdown-table" id="yearly-breakdown-table">
+              <thead>
+                <tr>
+                  <th>Tahun</th>
+                  <th>Q1 (Jan–Mar)</th>
+                  <th>Q2 (Apr–Jun)</th>
+                  <th>Q3 (Jul–Sep)</th>
+                  <th>Q4 (Okt–Des)</th>
+                  <th>Total Tahunan</th>
+                  <th>YoY Growth</th>
+                </tr>
+              </thead>
+              <tbody id="yearly-breakdown-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="chart-narrative" id="narrative-1">
+          <strong>Analisis:</strong> <span id="narrative-1-text">Memuat data...</span>
         </div>
       </div>
 
@@ -414,10 +445,8 @@
         <div class="chart-body flex-center">
           <div id="chart-category-donut"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Diagram donat ini memperlihatkan kontribusi dari tiga kategori utama perusahaan.
-          Kategori <strong>Teknologi</strong> memberikan kontribusi omset terbesar, diikuti oleh <strong>Office
-            Supplies</strong> (Alat Tulis) dan <strong>Furniture</strong> (Mebel).
+        <div class="chart-narrative" id="narrative-2">
+          <strong>Analisis:</strong> <span id="narrative-2-text">Memuat data...</span>
         </div>
       </div>
 
@@ -435,10 +464,8 @@
         <div class="chart-body">
           <div id="chart-category-gap-volume"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Grafik kolom ini membandingkan volume penjualan bersih secara absolut. Nilai
-          penjualan tertinggi didominasi oleh kategori <strong>Teknologi</strong> yang melampaui kategori lainnya,
-          mempertegas perannya sebagai penggerak utama omset global.
+        <div class="chart-narrative" id="narrative-3">
+          <strong>Analisis:</strong> <span id="narrative-3-text">Memuat data...</span>
         </div>
       </div>
 
@@ -456,11 +483,8 @@
         <div class="chart-body">
           <div id="chart-category-gap-margin"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Grafik ini menyoroti rasio margin keuntungan bersih (%) per kategori produk. Di
-          sini terlihat area risiko kritis: meskipun kategori <strong>Teknologi</strong> memiliki margin keuntungan
-          tinggi dan sehat, kategori <strong>Furniture</strong> (Mebel) mengalami margin negatif (defisit), menunjukkan
-          inefisiensi biaya operasional atau pemberian diskon yang terlalu agresif.
+        <div class="chart-narrative" id="narrative-4">
+          <strong>Analisis:</strong> <span id="narrative-4-text">Memuat data...</span>
         </div>
       </div>
 
@@ -505,11 +529,8 @@
             </div>
           </div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Analisis komparatif regional ini menggabungkan performa omset penjualan (batang)
-          dan tingkat laba bersih (garis). Wilayah <strong>Barat (West)</strong> dan <strong>Timur (East)</strong>
-          memimpin performa bisnis dengan pertumbuhan tahunan (YoY) terkuat serta profitabilitas yang solid, sedangkan
-          wilayah Tengah dan Selatan menunjukkan margin yang lebih tipis.
+        <div class="chart-narrative" id="narrative-5">
+          <strong>Analisis:</strong> <span id="narrative-5-text">Memuat data...</span>
         </div>
       </div>
 
@@ -524,12 +545,8 @@
         <div class="chart-body">
           <div id="chart-subcategory-bar"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Peringkat laba bersih absolut per sub-kategori produk. Sub-kategori <strong>Telepon
-            (Phones)</strong> dan <strong>Kursi (Chairs)</strong> tercatat sebagai penyumbang keuntungan bersih
-          terbesar. Di sisi lain, sub-kategori <strong>Meja (Tables)</strong> dan <strong>Rak Buku (Bookcases)</strong>
-          mengalami kerugian operasional terdalam (batang merah), yang memerlukan peninjauan ulang struktur harga dan
-          diskon.
+        <div class="chart-narrative" id="narrative-6">
+          <strong>Analisis:</strong> <span id="narrative-6-text">Memuat data...</span>
         </div>
       </div>
 
@@ -544,11 +561,8 @@
         <div class="chart-body">
           <div id="chart-state-bar"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Grafik batang ini menampilkan 10 negara bagian teratas berdasarkan total volume
-          penjualan nasional. Pasar di negara bagian <strong>California</strong> dan <strong>New York</strong>
-          mendominasi secara signifikan dibanding wilayah lainnya, menjadikannya pasar inti yang sangat krusial bagi
-          kelangsungan bisnis.
+        <div class="chart-narrative" id="narrative-7">
+          <strong>Analisis:</strong> <span id="narrative-7-text">Memuat data...</span>
         </div>
       </div>
 
@@ -563,10 +577,8 @@
         <div class="chart-body flex-center">
           <div id="chart-segment-bar"></div>
         </div>
-        <div class="chart-narrative">
-          <strong>Analisis:</strong> Distribusi kontribusi omset berdasarkan segmen pasar utama. Segmen <strong>Konsumen
-            Ritel (Consumer)</strong> menyumbang lebih dari separuh total pendapatan perusahaan (50%+), diikuti oleh
-          segmen Korporasi (Corporate) dan Kantor Rumah (Home Office) sebagai pendukung sekunder.
+        <div class="chart-narrative" id="narrative-8">
+          <strong>Analisis:</strong> <span id="narrative-8-text">Memuat data...</span>
         </div>
       </div>
 
@@ -1516,6 +1528,74 @@ Kesimpulan: Presentasi ini bottom-up, tidak ada hook dan call to action yang jel
         </div>
       </section>
 
+      <!-- Ringkasan & Kesimpulan Page -->
+      <div class="chart-card view-page" id="chart-summary-section">
+        <div class="chart-header">
+          <div>
+            <h3>Ringkasan &amp; Kesimpulan Analisis — Superstore Dashboard</h3>
+            <p>Konsolidasi temuan utama, pola bisnis kritis, dan rekomendasi strategis dari seluruh 8 chart analisis</p>
+          </div>
+          <div class="chart-actions">
+            <span class="badge badge-success">Laporan Eksekutif</span>
+          </div>
+        </div>
+
+        <!-- Summary Header Banner -->
+        <div class="summary-hero">
+          <div class="summary-hero-icon"><i data-lucide="bar-chart-2"></i></div>
+          <div class="summary-hero-text">
+            <h2>Superstore Analytics — Executive Summary</h2>
+            <p>Analisis komprehensif kinerja bisnis berbasis data transaksi Superstore. Temuan ini merangkum pola pertumbuhan, risiko profitabilitas, dan peluang strategis yang dapat langsung ditindaklanjuti oleh manajemen.</p>
+          </div>
+        </div>
+
+        <!-- Key Metrics Strip -->
+        <div class="summary-metrics-strip" id="summary-metrics-strip">
+          <div class="summary-metric-item">
+            <span class="summary-metric-label">Total Revenue</span>
+            <span class="summary-metric-value" id="sum-total-revenue">—</span>
+          </div>
+          <div class="summary-metric-item">
+            <span class="summary-metric-label">Total Laba Bersih</span>
+            <span class="summary-metric-value" id="sum-total-profit">—</span>
+          </div>
+          <div class="summary-metric-item">
+            <span class="summary-metric-label">Margin Laba</span>
+            <span class="summary-metric-value" id="sum-margin">—</span>
+          </div>
+          <div class="summary-metric-item">
+            <span class="summary-metric-label">Total Order</span>
+            <span class="summary-metric-value" id="sum-orders">—</span>
+          </div>
+          <div class="summary-metric-item">
+            <span class="summary-metric-label">Pelanggan Unik</span>
+            <span class="summary-metric-value" id="sum-customers">—</span>
+          </div>
+        </div>
+
+        <!-- Summary Findings - Dynamic bullet points -->
+        <div class="summary-findings-section">
+          <div class="findings-title-row">
+            <div>
+              <h3 class="findings-title">Poin-poin Utama</h3>
+              <p class="findings-subtitle">Rangkuman dari seluruh analisis data Superstore berdasarkan filter aktif</p>
+            </div>
+          </div>
+          <div id="summary-findings-list" class="summary-findings-list">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- Conclusion - Dynamic -->
+        <div class="summary-conclusion">
+          <div class="conclusion-header">
+            <i data-lucide="check-circle" style="width:24px;height:24px;color:var(--success);"></i>
+            <h3>Kesimpulan Eksekutif</h3>
+          </div>
+          <p id="summary-conclusion-text">Memuat kesimpulan...</p>
+        </div>
+      </div>
+
       <!-- Footer -->
       <footer class="app-footer">
         <p>&copy; 2026 Superstore Analytics. Dibuat dengan metrik kinerja fidelitas tinggi.</p>
@@ -1524,9 +1604,9 @@ Kesimpulan: Presentasi ini bottom-up, tidak ada hook dan call to action yang jel
   </div>
 
   <!-- Include data source first -->
-  <script src="data.js?v=5"></script>
+  <script src="data.js?v=8"></script>
   <!-- Include main application script -->
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=8"></script>
 </body>
 
 </html>

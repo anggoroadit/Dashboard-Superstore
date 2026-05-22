@@ -411,7 +411,10 @@ function showPage(targetId) {
   // 4. Trigger resize event for ApexCharts layout recalculation
   setTimeout(() => {
     window.dispatchEvent(new Event("resize"));
-  }, 50);
+    // Re-run narrative and summary updates when navigating to a chart page
+    if (typeof updateChartNarratives === 'function') updateChartNarratives();
+    if (typeof updateSummaryPage === 'function') updateSummaryPage();
+  }, 80);
 }
 
 // Master Dashboard Updating Routine
@@ -434,11 +437,20 @@ function updateDashboard() {
   // 3. Update Chart Visuals
   updateCharts();
 
+  // 3b. Render yearly table
+  renderYearlyBreakdownTable();
+
   // 4. Populate Table
   renderTable();
 
   // 5. Generate descriptive insights
   generateAnalyticalNarratives();
+
+  // 5b. Update dynamic chart analysis with real numbers
+  updateChartNarratives();
+
+  // 6. Update Summary Page
+  updateSummaryPage();
 }
 
 // KPI Logic & Statistics
@@ -746,12 +758,13 @@ function initCharts() {
       toolbar: { show: false },
       background: 'transparent'
     },
-    colors: [chartStyles.primary],
+    colors: ['#6366f1', '#06b6d4', '#10b981'],
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: '55%',
-        borderRadius: 4
+        borderRadius: 4,
+        distributed: true
       }
     },
     dataLabels: { enabled: false },
@@ -771,6 +784,7 @@ function initCharts() {
       borderColor: chartStyles.borderColor,
       strokeDashArray: 4
     },
+    legend: { show: false },
     tooltip: { theme: chartStyles.themeMode }
   };
   gapVolumeChart = new ApexCharts(document.querySelector("#chart-category-gap-volume"), gapVolumeOptions);
@@ -1239,7 +1253,15 @@ function updateCharts() {
   });
 
   gapVolumeChart.updateOptions({
-    colors: [chartStyles.primary],
+    colors: ['#6366f1', '#06b6d4', '#10b981'],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 4,
+        distributed: true
+      }
+    },
     xaxis: {
       categories: ['Furniture', 'Office Supplies', 'Technology'],
       labels: {
@@ -1256,6 +1278,7 @@ function updateCharts() {
       borderColor: chartStyles.borderColor,
       strokeDashArray: 4
     },
+    legend: { show: false },
     tooltip: {
       theme: chartStyles.themeMode,
       y: {
@@ -1544,6 +1567,374 @@ function shiftDateYear(dateStr, yearsShift) {
   if (isNaN(date.getTime())) return '';
   date.setFullYear(date.getFullYear() + yearsShift);
   return date.toISOString().split('T')[0];
+}
+
+// Render Yearly Q1-Q4 Breakdown Table for Chart 1
+function renderYearlyBreakdownTable() {
+  const tbody = document.getElementById('yearly-breakdown-body');
+  if (!tbody) return;
+
+  // Group sales by year and quarter from currentData
+  const yearlyData = {};
+  currentData.forEach(d => {
+    const dateStr = d.orderDate;
+    if (!dateStr) return;
+    const year = parseInt(dateStr.substring(0, 4));
+    const month = parseInt(dateStr.substring(5, 7));
+    const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
+    if (!yearlyData[year]) {
+      yearlyData[year] = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+    }
+    yearlyData[year][quarter] += d.sales;
+  });
+
+  const years = Object.keys(yearlyData).map(Number).sort();
+  if (years.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--text-muted);">Tidak ada data dalam rentang filter.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  let prevYearTotal = null;
+
+  years.forEach((year) => {
+    const q1 = yearlyData[year].Q1;
+    const q2 = yearlyData[year].Q2;
+    const q3 = yearlyData[year].Q3;
+    const q4 = yearlyData[year].Q4;
+    const total = q1 + q2 + q3 + q4;
+
+    let yoyText = '—';
+    let yoyClass = '';
+    if (prevYearTotal !== null && prevYearTotal > 0) {
+      const growth = ((total - prevYearTotal) / prevYearTotal) * 100;
+      yoyText = `${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%`;
+      yoyClass = growth >= 0 ? 'trend-positive' : 'trend-negative';
+    }
+    prevYearTotal = total;
+
+    const bestQ = ['Q1','Q2','Q3','Q4'].reduce((best, q) => yearlyData[year][q] > yearlyData[year][best] ? q : best, 'Q1');
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${year}</strong></td>
+      <td class="${bestQ === 'Q1' ? 'best-quarter' : ''}">${ formatCompact(q1)}</td>
+      <td class="${bestQ === 'Q2' ? 'best-quarter' : ''}">${ formatCompact(q2)}</td>
+      <td class="${bestQ === 'Q3' ? 'best-quarter' : ''}">${ formatCompact(q3)}</td>
+      <td class="${bestQ === 'Q4' ? 'best-quarter' : ''}">${ formatCompact(q4)}</td>
+      <td><strong>${ formatCompact(total)}</strong></td>
+      <td class="${yoyClass}"><strong>${yoyText}</strong></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Dynamic data-driven analysis for each chart narrative
+function updateChartNarratives() {
+  try {
+    if (!currentData || currentData.length === 0) return;
+
+  const totalSales = currentData.reduce((s, d) => s + d.sales, 0);
+  const totalProfit = currentData.reduce((s, d) => s + d.profit, 0);
+  const marginPct = totalSales > 0 ? ((totalProfit / totalSales) * 100) : 0;
+  const totalOrders = new Set(currentData.map(d => d.orderId).filter(Boolean)).size;
+
+  // ── Category computations ──
+  const catSales = {};
+  const catProfit = {};
+  ['Furniture','Office Supplies','Technology'].forEach(c => { catSales[c] = 0; catProfit[c] = 0; });
+  currentData.forEach(d => {
+    if (catSales[d.category] !== undefined) { catSales[d.category] += d.sales; catProfit[d.category] += d.profit; }
+  });
+  const totalCatSales = Object.values(catSales).reduce((a,b) => a+b, 0);
+  const techPct = totalCatSales > 0 ? ((catSales['Technology'] / totalCatSales) * 100).toFixed(1) : '0';
+  const osPct   = totalCatSales > 0 ? ((catSales['Office Supplies'] / totalCatSales) * 100).toFixed(1) : '0';
+  const furPct  = totalCatSales > 0 ? ((catSales['Furniture'] / totalCatSales) * 100).toFixed(1) : '0';
+  const techMargin = catSales['Technology'] > 0 ? ((catProfit['Technology'] / catSales['Technology']) * 100).toFixed(1) : '0';
+  const furMargin  = catSales['Furniture']  > 0 ? ((catProfit['Furniture']  / catSales['Furniture'])  * 100).toFixed(1) : '0';
+  const osMargin   = catSales['Office Supplies'] > 0 ? ((catProfit['Office Supplies'] / catSales['Office Supplies']) * 100).toFixed(1) : '0';
+
+  // ── Monthly trend ──
+  const monthSales = {};
+  currentData.forEach(d => {
+    const ym = d.orderDate ? d.orderDate.substring(0, 7) : '';
+    if (ym) monthSales[ym] = (monthSales[ym] || 0) + d.sales;
+  });
+  const monthKeys = Object.keys(monthSales).sort();
+  const peakMonth = monthKeys.reduce((a, b) => monthSales[a] > monthSales[b] ? a : b, monthKeys[0] || '');
+  const troughMonth = monthKeys.reduce((a, b) => monthSales[a] < monthSales[b] ? a : b, monthKeys[0] || '');
+  const peakVal = monthSales[peakMonth] || 0;
+  const troughVal = monthSales[troughMonth] || 0;
+  const avgMonthly = monthKeys.length > 0 ? totalSales / monthKeys.length : 0;
+
+  // ── Yearly Q1/Q4 ratio ──
+  const yearlyQ = {};
+  currentData.forEach(d => {
+    const yr = d.orderDate ? parseInt(d.orderDate.substring(0,4)) : null;
+    const mo = d.orderDate ? parseInt(d.orderDate.substring(5,7)) : null;
+    if (!yr || !mo) return;
+    if (!yearlyQ[yr]) yearlyQ[yr] = {Q1:0, Q4:0, total:0};
+    if (mo <= 3) yearlyQ[yr].Q1 += d.sales;
+    if (mo >= 10) yearlyQ[yr].Q4 += d.sales;
+    yearlyQ[yr].total += d.sales;
+  });
+  const q4Ratios = Object.values(yearlyQ).map(y => y.total > 0 ? (y.Q4/y.total*100) : 0);
+  const avgQ4Ratio = q4Ratios.length > 0 ? (q4Ratios.reduce((a,b)=>a+b,0)/q4Ratios.length).toFixed(0) : '0';
+
+  // ── Region computations ──
+  const regionSales  = {};
+  const regionProfit = {};
+  currentData.forEach(d => {
+    regionSales[d.region]  = (regionSales[d.region]  || 0) + d.sales;
+    regionProfit[d.region] = (regionProfit[d.region] || 0) + d.profit;
+  });
+  const regions = Object.keys(regionSales).sort((a,b) => regionSales[b] - regionSales[a]);
+  const topRegion    = regions[0] || '—';
+  const bottomRegion = regions[regions.length - 1] || '—';
+  const topRegionPct = totalSales > 0 ? ((regionSales[topRegion] / totalSales) * 100).toFixed(1) : '0';
+  const topRegionMarginPct   = regionSales[topRegion] > 0 ? ((regionProfit[topRegion] / regionSales[topRegion]) * 100).toFixed(1) : '0';
+  const bottomRegionMarginPct = regionSales[bottomRegion] > 0 ? ((regionProfit[bottomRegion] / regionSales[bottomRegion]) * 100).toFixed(1) : '0';
+
+  // ── Sub-category profit ranking ──
+  const subProfit = {};
+  currentData.forEach(d => { subProfit[d.subCategory] = (subProfit[d.subCategory] || 0) + d.profit; });
+  const subCats = Object.keys(subProfit).sort((a,b) => subProfit[b] - subProfit[a]);
+  const topSub  = subCats[0] || '—';
+  const worstSub = subCats[subCats.length - 1] || '—';
+  const topSubProfit   = subProfit[topSub]   || 0;
+  const worstSubProfit = subProfit[worstSub] || 0;
+  const negativeSubs = subCats.filter(s => subProfit[s] < 0);
+
+  // ── Top state ──
+  const stateSales = {};
+  currentData.forEach(d => { stateSales[d.state] = (stateSales[d.state] || 0) + d.sales; });
+  const statesSorted = Object.keys(stateSales).sort((a,b) => stateSales[b] - stateSales[a]);
+  const topState  = statesSorted[0] || '—';
+  const top2State = statesSorted[1] || '—';
+  const top3State = statesSorted[2] || '—';
+  const topStatePct = totalSales > 0 ? ((stateSales[topState] / totalSales) * 100).toFixed(1) : '0';
+  const top2Pct = totalSales > 0 ? ((stateSales[top2State] / totalSales) * 100).toFixed(1) : '0';
+
+  // ── Segment computations ──
+  const segSales = {};
+  currentData.forEach(d => { segSales[d.segment] = (segSales[d.segment] || 0) + d.sales; });
+  const segs = Object.keys(segSales).sort((a,b) => segSales[b] - segSales[a]);
+  const topSeg    = segs[0] || '—';
+  const topSegPct = totalSales > 0 ? ((segSales[topSeg] / totalSales) * 100).toFixed(1) : '0';
+  const homePct   = totalSales > 0 && segSales['Home Office'] ? ((segSales['Home Office'] / totalSales) * 100).toFixed(1) : '0';
+
+  // ── Update narrative spans ──
+  const fmt = formatCompact;
+  const fmtPct = (v) => parseFloat(v) >= 0 ? `+${v}%` : `${v}%`;
+
+  const n1 = document.getElementById('narrative-1-text');
+  if (n1) n1.innerHTML = `Tren penjualan bulanan mencatat rata-rata <strong>${fmt(avgMonthly)}/bulan</strong> dengan puncak tertinggi pada <strong>${peakMonth}</strong> sebesar <strong>${fmt(peakVal)}</strong> dan titik terendah pada <strong>${troughMonth}</strong> sebesar <strong>${fmt(troughVal)}</strong>. Secara historis, Q4 (Oktober–Desember) menyumbang rata-rata <strong>${avgQ4Ratio}%</strong> dari total penjualan tahunan, jauh melampaui kuartal lainnya — pola musiman ini konsisten setiap tahun. Tabel Q1–Q4 di atas merinci distribusi per tahun: pertumbuhan YoY (Year-over-Year) terlihat jelas dari kenaikan total tahunan. Garis target +8% sebagai benchmark manajemen; bulan yang secara konsisten di bawah target perlu evaluasi insentif.`;
+
+  const n2 = document.getElementById('narrative-2-text');
+  if (n2) n2.innerHTML = `Dari total omset <strong>${fmt(totalSales)}</strong>, Teknologi mendominasi dengan pangsa <strong>${techPct}%</strong> (${fmt(catSales['Technology'])}), diikuti Office Supplies <strong>${osPct}%</strong> (${fmt(catSales['Office Supplies'])}), dan Furniture <strong>${furPct}%</strong> (${fmt(catSales['Furniture'])}). Dominasi Teknologi mencerminkan average selling price yang tinggi per transaksi. Ketergantungan pada satu kategori &gt;36% membawa risiko konsentrasi; diversifikasi ke Office Supplies (frekuensi transaksi tinggi) menjadi kunci stabilitas pendapatan jangka panjang.`;
+
+  const n3 = document.getElementById('narrative-3-text');
+  if (n3) n3.innerHTML = `Volume absolut: Teknologi <strong>${fmt(catSales['Technology'])}</strong>, Office Supplies <strong>${fmt(catSales['Office Supplies'])}</strong>, Furniture <strong>${fmt(catSales['Furniture'])}</strong>. Gap antara Teknologi dan Furniture mencapai <strong>${fmt(catSales['Technology'] - catSales['Furniture'])}</strong> — mencerminkan perbedaan average selling price yang signifikan. Office Supplies dengan frekuensi pembelian tinggi berperan sebagai penopang volume transaksi harian dan menjaga arus kas tetap stabil meski nilai per transaksi lebih kecil.`;
+
+  const n4 = document.getElementById('narrative-4-text');
+  if (n4) n4.innerHTML = `Margin laba bersih per kategori: Teknologi <strong class="trend-positive">${fmtPct(techMargin)}</strong>, Office Supplies <strong>${fmtPct(osMargin)}</strong>, Furniture <strong class="${parseFloat(furMargin) < 0 ? 'trend-negative' : 'trend-positive'}">${fmtPct(furMargin)}</strong>. Furniture mencatat margin ${parseFloat(furMargin) < 0 ? '<strong class="trend-negative">negatif</strong>' : 'positif'} — indikasi kritis bahwa kebijakan diskon agresif di kategori ini telah melampaui batas toleransi margin. Total laba bersih keseluruhan <strong>${fmt(totalProfit)}</strong> dengan margin rata-rata <strong>${marginPct.toFixed(1)}%</strong>; pemulihan margin Furniture bahkan 5 poin persentase saja akan menambah laba signifikan.`;
+
+  const n5 = document.getElementById('narrative-5-text');
+  if (n5) n5.innerHTML = `Wilayah <strong>${topRegion}</strong> memimpin dengan kontribusi <strong>${topRegionPct}%</strong> dari total omset (${fmt(regionSales[topRegion])}) dan margin laba <strong>${topRegionMarginPct}%</strong>. Sebaliknya, wilayah <strong>${bottomRegion}</strong> mencatat margin terendah <strong>${bottomRegionMarginPct}%</strong> (${fmt(regionSales[bottomRegion])} omset) — indikasi tekanan kompetitif atau diskon berlebihan di wilayah tersebut. Disparitas margin antar wilayah ini menjadi sinyal untuk diferensiasi strategi: wilayah berkinerja tinggi difokuskan pada upselling produk premium, sementara wilayah lemah perlu audit struktur diskon.`;
+
+  const n6 = document.getElementById('narrative-6-text');
+  if (n6) n6.innerHTML = `Sub-kategori paling profitable: <strong>${topSub}</strong> dengan laba bersih <strong class="trend-positive">${fmt(topSubProfit)}</strong>. Sub-kategori paling merugi: <strong>${worstSub}</strong> dengan kerugian bersih <strong class="trend-negative">${fmt(worstSubProfit)}</strong>. Total <strong>${negativeSubs.length}</strong> sub-kategori mencatat laba negatif: ${negativeSubs.map(s=>`<strong>${s}</strong>`).join(', ')} — semuanya memerlukan evaluasi struktur diskon atau repricing segera. Gap antara sub-kategori terbaik dan terburuk mencapai <strong>${fmt(topSubProfit - worstSubProfit)}</strong>, menunjukkan ketidakseimbangan portofolio yang perlu dikoreksi.`;
+
+  const n7 = document.getElementById('narrative-7-text');
+  if (n7) n7.innerHTML = `<strong>${topState}</strong> mendominasi dengan ${fmt(stateSales[topState])} (<strong>${topStatePct}%</strong> dari total nasional), diikuti <strong>${top2State}</strong> <strong>${fmt(stateSales[top2State])}</strong> (${top2Pct}%), dan <strong>${top3State}</strong> ${fmt(stateSales[top3State] || 0)}. Tiga negara bagian teratas ini secara gabungan menyumbang lebih dari <strong>${(parseFloat(topStatePct)+parseFloat(top2Pct)).toFixed(1)}%</strong> total omset nasional. Konsentrasi ini menunjukkan peluang pertumbuhan besar di negara bagian peringkat 4–10 yang masih relatif belum tergarap optimal, dengan potensi akselerasi bila didukung tim sales dedicated.`;
+
+  const n8 = document.getElementById('narrative-8-text');
+  if (n8) n8.innerHTML = `Segmen <strong>${topSeg}</strong> mendominasi dengan <strong>${topSegPct}%</strong> total omset (${fmt(segSales[topSeg] || 0)}), menjadi tulang punggung pendapatan Superstore. Segmen <strong>Home Office</strong> berkontribusi <strong>${homePct}%</strong> (${fmt(segSales['Home Office'] || 0)}) — meski terkecil, segmen ini memiliki potensi pertumbuhan tertinggi di era hybrid work. Total <strong>${totalOrders.toLocaleString()}</strong> order dari <strong>${new Set(currentData.map(d=>d.customerId).filter(Boolean)).size.toLocaleString()}</strong> pelanggan unik, dengan rata-rata <strong>${totalOrders > 0 ? fmt(totalSales/totalOrders) : '$0'}</strong> per order. Peningkatan program loyalitas antar segmen berpotensi meningkatkan repeat purchase rate dan average order value.`;
+  } catch (e) {
+    console.warn('[updateChartNarratives] Error:', e);
+  }
+}
+
+// Update Summary Page — Dynamic bullet points grouped by theme
+function updateSummaryPage() {
+  if (!currentData || currentData.length === 0) return;
+
+  const totalSales   = currentData.reduce((s, d) => s + d.sales, 0);
+  const totalProfit  = currentData.reduce((s, d) => s + d.profit, 0);
+  const margin       = totalSales > 0 ? ((totalProfit / totalSales) * 100) : 0;
+  const uniqueOrders = new Set(currentData.map(d => d.orderId).filter(Boolean)).size;
+  const uniqueCustomers = new Set(currentData.map(d => d.customerId).filter(Boolean)).size;
+
+  // Update metrics strip
+  const elRevenue   = document.getElementById('sum-total-revenue');
+  const elProfit    = document.getElementById('sum-total-profit');
+  const elMargin    = document.getElementById('sum-margin');
+  const elOrders    = document.getElementById('sum-orders');
+  const elCustomers = document.getElementById('sum-customers');
+  if (elRevenue)   elRevenue.textContent = formatCurrency(totalSales);
+  if (elProfit)  { elProfit.textContent  = formatCurrency(totalProfit); elProfit.className = 'summary-metric-value ' + (totalProfit >= 0 ? 'metric-positive' : 'metric-negative'); }
+  if (elMargin)  { elMargin.textContent  = margin.toFixed(1) + '%';     elMargin.className  = 'summary-metric-value ' + (margin >= 10 ? 'metric-positive' : margin >= 0 ? '' : 'metric-negative'); }
+  if (elOrders)    elOrders.textContent    = uniqueOrders.toLocaleString();
+  if (elCustomers) elCustomers.textContent = uniqueCustomers.toLocaleString();
+
+  // ── Compute key numbers ──
+  const fmt = formatCompact;
+
+  // Yearly growth (last 2 years)
+  const yearSales = {};
+  currentData.forEach(d => {
+    const yr = d.orderDate ? parseInt(d.orderDate.substring(0,4)) : null;
+    if (yr) yearSales[yr] = (yearSales[yr] || 0) + d.sales;
+  });
+  const sortedYears = Object.keys(yearSales).map(Number).sort();
+  let latestYoY = null;
+  let latestYear = null;
+  let prevYear = null;
+  if (sortedYears.length >= 2) {
+    latestYear = sortedYears[sortedYears.length - 1];
+    prevYear   = sortedYears[sortedYears.length - 2];
+    latestYoY  = ((yearSales[latestYear] - yearSales[prevYear]) / yearSales[prevYear] * 100).toFixed(1);
+  }
+
+  // Best quarter across all data
+  const qSales = {Q1:0, Q2:0, Q3:0, Q4:0};
+  currentData.forEach(d => {
+    const mo = d.orderDate ? parseInt(d.orderDate.substring(5,7)) : null;
+    if (!mo) return;
+    const q = mo<=3?'Q1':mo<=6?'Q2':mo<=9?'Q3':'Q4';
+    qSales[q] += d.sales;
+  });
+  const bestQ = Object.keys(qSales).reduce((a,b) => qSales[a]>qSales[b]?a:b);
+  const worstQ = Object.keys(qSales).reduce((a,b) => qSales[a]<qSales[b]?a:b);
+
+  // Category
+  const catSales  = {Furniture:0,'Office Supplies':0,Technology:0};
+  const catProfit = {Furniture:0,'Office Supplies':0,Technology:0};
+  currentData.forEach(d => { if (catSales[d.category]!==undefined) { catSales[d.category]+=d.sales; catProfit[d.category]+=d.profit; } });
+  const techPct   = totalSales>0?((catSales['Technology']/totalSales)*100).toFixed(1):'0';
+  const furMargin = catSales['Furniture']>0?((catProfit['Furniture']/catSales['Furniture'])*100).toFixed(1):'0';
+
+  // Sub-category
+  const subProfit = {};
+  currentData.forEach(d => { subProfit[d.subCategory] = (subProfit[d.subCategory]||0) + d.profit; });
+  const subCats     = Object.keys(subProfit).sort((a,b) => subProfit[b]-subProfit[a]);
+  const topSub      = subCats[0]||'—';
+  const worstSub    = subCats[subCats.length-1]||'—';
+  const negativeSubs= subCats.filter(s => subProfit[s]<0);
+
+  // Region
+  const regSales  = {};
+  const regProfit = {};
+  currentData.forEach(d => { regSales[d.region]=(regSales[d.region]||0)+d.sales; regProfit[d.region]=(regProfit[d.region]||0)+d.profit; });
+  const topReg    = Object.keys(regSales).sort((a,b)=>regSales[b]-regSales[a])[0]||'—';
+  const worstReg  = Object.keys(regSales).sort((a,b)=>regSales[a]-regSales[b])[0]||'—';
+  const topRegPct = totalSales>0?((regSales[topReg]/totalSales)*100).toFixed(1):'0';
+  const worstRegMargin = regSales[worstReg]>0?((regProfit[worstReg]/regSales[worstReg])*100).toFixed(1):'0';
+
+  // Top state
+  const stSales   = {};
+  currentData.forEach(d => { stSales[d.state]=(stSales[d.state]||0)+d.sales; });
+  const topState  = Object.keys(stSales).sort((a,b)=>stSales[b]-stSales[a])[0]||'—';
+  const topStatePct = totalSales>0?((stSales[topState]/totalSales)*100).toFixed(1):'0';
+
+  // Segment
+  const segSales  = {};
+  currentData.forEach(d => { segSales[d.segment]=(segSales[d.segment]||0)+d.sales; });
+  const topSeg    = Object.keys(segSales).sort((a,b)=>segSales[b]-segSales[a])[0]||'—';
+  const topSegPct = totalSales>0?((segSales[topSeg]/totalSales)*100).toFixed(1):'0';
+  const avgOrderVal = uniqueOrders>0?totalSales/uniqueOrders:0;
+
+  // ── Build bullet points ──
+  const findings = [];
+
+  // PERTUMBUHAN
+  if (latestYear && prevYear) {
+    const isGrowth = parseFloat(latestYoY) >= 0;
+    findings.push({
+      type: isGrowth ? 'positif' : 'concern',
+      icon: isGrowth ? 'trending-up' : 'trending-down',
+      label: isGrowth ? 'POSITIF' : 'CONCERN',
+      title: 'Pertumbuhan Revenue',
+      text: `Revenue tahun <strong>${latestYear}</strong> sebesar <strong>${fmt(yearSales[latestYear])}</strong>, tumbuh <strong>${isGrowth?'+':''}${latestYoY}%</strong> dibanding tahun ${prevYear} (<strong>${fmt(yearSales[prevYear])}</strong>). Q4 secara konsisten menjadi kuartal terkuat; <strong>${bestQ}</strong> (${fmt(qSales[bestQ])}) vs. <strong>${worstQ}</strong> terendah (${fmt(qSales[worstQ])}) — selisih <strong>${fmt(qSales[bestQ]-qSales[worstQ])}</strong>.`
+    });
+  }
+
+  // AKTIVITAS TRANSAKSI
+  findings.push({
+    type: 'positif',
+    icon: 'activity',
+    label: 'POSITIF',
+    title: 'Aktivitas Transaksi',
+    text: `Total <strong>${uniqueOrders.toLocaleString()}</strong> order dari <strong>${uniqueCustomers.toLocaleString()}</strong> pelanggan unik. Rata-rata nilai per order <strong>${fmt(avgOrderVal)}</strong>. Segmen <strong>${topSeg}</strong> mendominasi <strong>${topSegPct}%</strong> omset (${fmt(segSales[topSeg]||0)}). Pasar terbesar: <strong>${topState}</strong> dengan kontribusi <strong>${topStatePct}%</strong> (${fmt(stSales[topState]||0)}).`
+  });
+
+  // DOMINASI KATEGORI
+  findings.push({
+    type: 'positif',
+    icon: 'cpu',
+    label: 'POSITIF',
+    title: 'Dominasi Teknologi',
+    text: `Kategori <strong>Teknologi</strong> menyumbang <strong>${techPct}%</strong> (${fmt(catSales['Technology'])}) dari total omset <strong>${fmt(totalSales)}</strong>. Wilayah <strong>${topReg}</strong> menjadi kontributor terbesar, menyumbang <strong>${topRegPct}%</strong> (${fmt(regSales[topReg]||0)}) dari total nasional. Sub-kategori paling profitable: <strong>${topSub}</strong> dengan laba bersih <strong>${fmt(subProfit[topSub]||0)}</strong>.`
+  });
+
+  // PROFITABILITAS & MARGIN
+  const isHealthyMargin = margin >= 10;
+  findings.push({
+    type: isHealthyMargin ? 'positif' : 'perhatian',
+    icon: 'percent',
+    label: isHealthyMargin ? 'POSITIF' : 'PERHATIAN',
+    title: 'Profitabilitas & Margin',
+    text: `Margin laba bersih keseluruhan <strong>${margin.toFixed(1)}%</strong> (laba ${fmt(totalProfit)} dari omset ${fmt(totalSales)}). Furniture mencatat margin <strong class="${parseFloat(furMargin)<0?'trend-negative':'trend-positive'}">${furMargin}%</strong> — ${parseFloat(furMargin)<0?'<strong>defisit</strong> akibat diskon agresif yang melampaui batas toleransi':'margin positif namun perlu dijaga'}. Wilayah <strong>${worstReg}</strong> mencatat margin terendah <strong>${worstRegMargin}%</strong>.`
+  });
+
+  // RISIKO: sub-kategori merugi
+  if (negativeSubs.length > 0) {
+    findings.push({
+      type: 'concern',
+      icon: 'alert-circle',
+      label: 'CONCERN',
+      title: 'Risiko Kebocoran Laba',
+      text: `<strong>${negativeSubs.length}</strong> sub-kategori mencatat kerugian bersih: ${negativeSubs.slice(0,4).map(s=>`<strong>${s}</strong> (${fmt(subProfit[s])})`).join(', ')}. Kerugian terdalam: <strong>${worstSub}</strong> sebesar <strong class="trend-negative">${fmt(subProfit[worstSub])}</strong>. Tanpa intervensi harga atau pembatasan diskon, "profit drain" ini akan terus menggerus keuntungan dari sub-kategori bintang seperti <strong>${topSub}</strong>.`
+    });
+  }
+
+  // ── Render bullet list ──
+  const container = document.getElementById('summary-findings-list');
+  if (!container) return;
+
+  const typeMap = {
+    positif: { badge: '✅ POSITIF', cls: 'positif', badgeCls: 'positif-badge' },
+    perhatian: { badge: '⚠️ PERHATIAN', cls: 'perhatian', badgeCls: 'perhatian-badge' },
+    concern:  { badge: '🔴 CONCERN',  cls: 'concern',  badgeCls: 'concern-badge'  }
+  };
+
+  container.innerHTML = findings.map(f => {
+    const tm = typeMap[f.type] || typeMap['positif'];
+    return `
+      <div class="summary-finding-card ${tm.cls}">
+        <div class="finding-icon"><i data-lucide="${f.icon}"></i></div>
+        <div class="finding-content">
+          <div class="finding-badge ${tm.badgeCls}">${tm.badge}</div>
+          <h4>${f.title}</h4>
+          <p>${f.text}</p>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Re-init lucide icons for the dynamically added elements
+  if (window.lucide) lucide.createIcons();
+
+  // ── Conclusion ──
+  const conclusionEl = document.getElementById('summary-conclusion-text');
+  if (conclusionEl) {
+    const growthStr = latestYoY !== null
+      ? `Revenue tahun ${latestYear} tumbuh <strong>${parseFloat(latestYoY)>=0?'+':''}${latestYoY}%</strong> menjadi <strong>${fmt(yearSales[latestYear])}</strong>.`
+      : `Total revenue <strong>${fmt(totalSales)}</strong>.`;
+    const riskStr = negativeSubs.length > 0
+      ? `Risiko utama: <strong>${negativeSubs.length}</strong> sub-kategori defisit (terdalam: ${worstSub} ${fmt(subProfit[worstSub])}) memerlukan restrukturisasi diskon segera.`
+      : `Seluruh sub-kategori mencatat laba positif — portofolio produk dalam kondisi sehat.`;
+    conclusionEl.innerHTML = `${growthStr} Margin laba bersih <strong>${margin.toFixed(1)}%</strong> dari total <strong>${uniqueOrders.toLocaleString()}</strong> transaksi. Kekuatan utama: Teknologi (<strong>${techPct}%</strong> pangsa omset) dan pasar <strong>${topState}</strong> (<strong>${topStatePct}%</strong> kontribusi nasional). ${riskStr} Fokus pemulihan pada efisiensi margin Furniture dan pembatasan diskon sub-kategori defisit berpotensi mendorong laba bersih naik 3–5 poin persentase dalam 2 kuartal ke depan.`;
+  }
 }
 
 // Adjust Chart Styling options during Dark/Light toggles

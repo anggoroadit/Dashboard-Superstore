@@ -2157,3 +2157,413 @@ select:focus {
     border-color: #000 !important;
   }
 }
+
+/* =========================================================
+   YEARLY Q1-Q4 BREAKDOWN TABLE
+   ========================================================= */
+.yearly-table-section {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+}
+
+.yearly-table-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.yearly-table-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.yearly-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.yearly-breakdown-table thead tr {
+  background: rgba(var(--primary-rgb), 0.1);
+}
+
+.yearly-breakdown-table th {
+  padding: 10px 14px;
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.yearly-breakdown-table td {
+  padding: 10px 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.2s;
+}
+
+.yearly-breakdown-table tbody tr:hover td {
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+.yearly-breakdown-table td.best-quarter {
+  color: var(--success);
+  font-weight: 700;
+  background: rgba(var(--success-rgb), 0.06);
+}
+
+[data-theme="light"] .yearly-breakdown-table thead tr {
+  background: rgba(79, 70, 229, 0.06);
+}
+
+[data-theme="light"] .yearly-breakdown-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .yearly-breakdown-table tbody tr:hover td {
+  background: rgba(79, 70, 229, 0.04);
+}
+
+/* =========================================================
+   RINGKASAN & KESIMPULAN - EXECUTIVE SUMMARY PAGE
+   ========================================================= */
+
+/* Hero Banner */
+.summary-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), rgba(var(--accent-rgb), 0.08));
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  padding: 24px 28px;
+  margin-bottom: 4px;
+}
+
+.summary-hero-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--border-radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.35);
+}
+
+.summary-hero-icon i {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
+
+.summary-hero-text h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.summary-hero-text p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Metrics Strip */
+.summary-metrics-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.summary-metric-item {
+  flex: 1;
+  min-width: 140px;
+  background: var(--bg-card);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.summary-metric-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.summary-metric-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-metric-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+
+.summary-metric-value.metric-positive {
+  color: var(--success);
+}
+
+.summary-metric-value.metric-negative {
+  color: var(--danger);
+}
+
+/* Findings Grid */
+.summary-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 20px;
+}
+
+/* Finding Card */
+.summary-finding-card {
+  display: flex;
+  gap: 18px;
+  border-radius: var(--border-radius-md);
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-finding-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.summary-finding-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Positif card */
+.summary-finding-card.positif {
+  background: linear-gradient(135deg, rgba(var(--success-rgb), 0.06), rgba(var(--success-rgb), 0.02));
+  border-color: rgba(var(--success-rgb), 0.15);
+}
+
+.summary-finding-card.positif::before {
+  background: var(--success);
+}
+
+/* Perhatian card */
+.summary-finding-card.perhatian {
+  background: linear-gradient(135deg, rgba(var(--warning-rgb), 0.06), rgba(var(--warning-rgb), 0.02));
+  border-color: rgba(var(--warning-rgb), 0.2);
+}
+
+.summary-finding-card.perhatian::before {
+  background: var(--warning);
+}
+
+/* Concern card */
+.summary-finding-card.concern {
+  background: linear-gradient(135deg, rgba(var(--danger-rgb), 0.06), rgba(var(--danger-rgb), 0.02));
+  border-color: rgba(var(--danger-rgb), 0.15);
+}
+
+.summary-finding-card.concern::before {
+  background: var(--danger);
+}
+
+/* Strategic card */
+.summary-finding-card.strategic {
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--accent-rgb), 0.04));
+  border-color: rgba(var(--primary-rgb), 0.2);
+  grid-column: 1 / -1;
+}
+
+.summary-finding-card.strategic::before {
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
+}
+
+/* Finding Icon */
+.finding-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.summary-finding-card.positif .finding-icon {
+  background: rgba(var(--success-rgb), 0.15);
+  color: var(--success);
+}
+
+.summary-finding-card.perhatian .finding-icon {
+  background: rgba(var(--warning-rgb), 0.15);
+  color: var(--warning);
+}
+
+.summary-finding-card.concern .finding-icon {
+  background: rgba(var(--danger-rgb), 0.15);
+  color: var(--danger);
+}
+
+.summary-finding-card.strategic .finding-icon {
+  background: rgba(var(--primary-rgb), 0.15);
+  color: var(--primary);
+}
+
+.finding-icon i {
+  width: 22px;
+  height: 22px;
+}
+
+/* Finding Content */
+.finding-content {
+  flex: 1;
+}
+
+.finding-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.positif-badge {
+  background: rgba(var(--success-rgb), 0.12);
+  color: var(--success);
+}
+
+.perhatian-badge {
+  background: rgba(var(--warning-rgb), 0.12);
+  color: var(--warning);
+}
+
+.concern-badge {
+  background: rgba(var(--danger-rgb), 0.12);
+  color: var(--danger);
+}
+
+.strategic-badge {
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary);
+}
+
+.finding-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.finding-content p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Conclusion Section */
+.summary-conclusion {
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.06), rgba(var(--success-rgb), 0.04));
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  padding: 28px;
+  margin-top: 4px;
+}
+
+.conclusion-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.conclusion-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.summary-conclusion p {
+  font-size: 0.93rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .summary-findings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-finding-card.strategic {
+    grid-column: 1;
+  }
+
+  .summary-metrics-strip {
+    flex-direction: column;
+  }
+
+  .summary-metric-item {
+    min-width: unset;
+  }
+}
+
+/* ── Findings Section (new compact layout) ── */
+.summary-findings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.findings-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.findings-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.findings-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.summary-findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
